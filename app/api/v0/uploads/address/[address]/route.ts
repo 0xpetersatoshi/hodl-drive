@@ -3,6 +3,8 @@ import { NextApiRequest } from "next";
 import { fetchGraphQL } from "@/app/utils/query";
 import { getTxByAddress } from "@/app/graphql";
 
+const DEFAULT_LIMIT = 100;
+
 type AddressUploadParams = {
   address: string;
 };
@@ -17,7 +19,14 @@ export const GET = async (
     getTxByAddress,
     "getTxByAddress",
     {
-      owners: address,
+      owners: process.env.UPLOADER_ADDRESS,
+      tags: [
+        {
+          name: "address",
+          values: address,
+        },
+      ],
+      limit: DEFAULT_LIMIT,
     }
   );
 
