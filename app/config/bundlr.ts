@@ -6,7 +6,7 @@ const PROVIDER_URL = "https://rpc-mumbai.maticvigil.com";
 const CURRENCY = "matic";
 const AMOUNT_TO_FUND = 0.5;
 
-export const GRAPHQL_ENDPOINT = "https://devnet.bundlr.network/graphql";
+export const GRAPHQL_ENDPOINT = `${NETWORK}/graphql`;
 
 // Initailze the bundlr SDK
 export const bundlr = new Bundlr(NETWORK, CURRENCY, PRIVATE_KEY, {

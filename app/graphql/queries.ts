@@ -19,3 +19,25 @@ export const getTxByAddress = `query getTxByAddress($owners: [String!]) {
       }
     }
   }`;
+
+export const getTxById = `query getTxById($txIds: [String!]) {
+    transactions(ids: $txIds limit: 1) {
+      edges {
+        node {
+          id
+          address
+          currency
+          tags {
+            name
+            value
+          }
+          receipt {
+            timestamp
+          }
+          timestamp
+          signature
+        }
+      }
+    }
+  }
+  `;
