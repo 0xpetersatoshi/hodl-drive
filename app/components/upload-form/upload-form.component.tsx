@@ -1,13 +1,23 @@
 "use-client";
 
 import { useState } from "react";
+import { useAccount } from "wagmi";
 
 const UploadForm = () => {
   const [data, setData] = useState("");
-  const [address, setAddress] = useState("");
+  const { address, isConnecting, isDisconnected } = useAccount();
 
   const upload = async () => {
     try {
+      if (isConnecting || isDisconnected) {
+        const message =
+          "Wallet is not connected. Please connect before uploading.";
+        console.error(message);
+        alert(message);
+        throw new Error(message);
+      }
+      console.log(`connected address: ${address}`);
+
       const response = await fetch("/api/v0/upload", {
         method: "POST",
         body: JSON.stringify({ data, address }),
@@ -28,13 +38,6 @@ const UploadForm = () => {
         className="text-black px-2 py-1"
         placeholder="Add data to your HODL Drive"
         onChange={(e) => setData(e.target.value)}
-      />
-
-      <input
-        type="text"
-        className="text-black px-2 py-1"
-        placeholder="Add your wallet address"
-        onChange={(e) => setAddress(e.target.value)}
       />
 
       <button className="text-black bg-white mt-2 px-12" onClick={upload}>
