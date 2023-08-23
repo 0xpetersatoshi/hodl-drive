@@ -4,16 +4,16 @@ import { fetchGraphQL } from "@/app/utils/query";
 import { getTxById } from "@/app/graphql";
 
 type TxUploadParams = {
-  txid: string;
+  id: string;
 };
 
 export const GET = async (
   _: NextApiRequest,
   { params }: { params: TxUploadParams }
 ) => {
-  const { txid } = params;
+  const { id } = params;
   const { errors, data } = await fetchGraphQL(getTxById, "getTxById", {
-    txIds: txid,
+    txIds: id,
   });
 
   if (errors) {
