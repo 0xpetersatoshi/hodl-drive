@@ -1,15 +1,10 @@
 import "./globals.css";
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "./providers";
+import Navbar from "./components/navigation/navigation.component";
 
 const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "HODL Drive",
-  description: "Upload data to your decentralized storage drive",
-};
 
 export default function RootLayout({
   children,
@@ -19,7 +14,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
       </body>
     </html>
   );
