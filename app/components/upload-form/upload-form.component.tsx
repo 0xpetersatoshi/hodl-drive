@@ -30,15 +30,18 @@ const UploadForm = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-between">
+    <div className="flex flex-col items-center justify-between bg-black p-4 rounded text-white">
       <input
         type="text"
-        className="text-black px-2 py-1"
-        placeholder="Add data to your HODL Drive"
+        className="bg-gray-800 px-2 py-1 rounded text-white placeholder-gray-500 focus:ring focus:ring-opacity-50 focus:ring-gray-600"
+        placeholder="Add data to your Drive"
         onChange={(e) => setData(e.target.value)}
       />
 
-      <button className="text-black bg-white mt-2 px-12" onClick={upload}>
+      <button
+        className="bg-blue-600 text-white hover:bg-blue-700 mt-2 px-12 py-1 rounded"
+        onClick={upload}
+      >
         Upload data
       </button>
     </div>
