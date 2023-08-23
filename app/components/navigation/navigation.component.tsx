@@ -4,17 +4,19 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 const Navbar = () => {
   return (
     <div className="flex justify-between items-center bg-red-500 p-4">
-      <a className="text-xl font-bold text-white">HODL Drive</a>
+      <Link href="/" className="text-xl font-bold text-white">
+        HODL Drive
+      </Link>
 
       <ul className="flex space-x-4 items-center">
         <li>
           <Link href="/" className="text-white hover:underline">
-            Home
+            Upload
           </Link>
         </li>
         <li>
           <Link href="/uploads" className="text-white hover:underline">
-            Uploads
+            MyDrive
           </Link>
         </li>
         <li>
