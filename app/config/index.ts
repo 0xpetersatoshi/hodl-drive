@@ -1,1 +1,17 @@
+const UPLOADER_ADDRESS = process.env.UPLOADER_ADDRESS as string;
+const INDEXED_DB_NAME = process.env.INDEXED_DB_NAME as string;
+const INDEXED_DB_OBJECT_STORE = process.env.INDEXED_DB_OBJECT_STORE as string;
+const WALLET_CONNECT_PROJECT_NAME = process.env
+  .NEXT_PUBLIC_WALLET_CONNECT_PROJECT_NAME as string;
+const WALLET_CONNECT_PROJECT_ID = process.env
+  .NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string;
+
+export const config = {
+  INDEXED_DB_NAME,
+  INDEXED_DB_OBJECT_STORE,
+  WALLET_CONNECT_PROJECT_NAME,
+  WALLET_CONNECT_PROJECT_ID,
+  UPLOADER_ADDRESS,
+};
+
 export * from "./bundlr";

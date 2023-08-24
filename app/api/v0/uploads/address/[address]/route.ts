@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { NextApiRequest } from "next";
 import { fetchGraphQL } from "@/app/utils/query";
 import { getTxByAddress } from "@/app/graphql";
+import {config} from "@/app/config";
 
 const DEFAULT_LIMIT = 100;
 
@@ -19,7 +20,7 @@ export const GET = async (
     getTxByAddress,
     "getTxByAddress",
     {
-      owners: process.env.UPLOADER_ADDRESS,
+      owners: config.UPLOADER_ADDRESS,
       tags: [
         {
           name: "address",
