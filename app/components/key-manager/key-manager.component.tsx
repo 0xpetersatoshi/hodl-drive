@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { config } from "@/app/config";
+import { useEncryptionKey } from "@/app/contexts/keys";
 
 const KeyManager = () => {
-  const [keyBuffer, setKeyBuffer] = useState<Uint8Array | null>(null);
+  const [showDownloadButton, setShowDownloadButton] = useState(false);
+  const { keyBuffer, setKeyBuffer } = useEncryptionKey();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const initIndexedDB = () => {
@@ -21,7 +23,29 @@ const KeyManager = () => {
       const db = openRequest.result;
       const tx = db.transaction(config.INDEXED_DB_OBJECT_STORE, "readwrite");
       const store = tx.objectStore(config.INDEXED_DB_OBJECT_STORE);
-      store.put({ id: "encryptionKey", key });
+
+      const request = store.put({ id: config.INDEXED_DB_OBJECT_ID, key });
+
+      request.onsuccess = () => {
+        console.log("Key successfully stored in IndexedDB");
+      };
+
+      request.onerror = () => {
+        console.error("Could not store key in IndexedDB:", request.error);
+      };
+
+      tx.oncomplete = () => {
+        console.log("Transaction completed");
+        db.close();
+      };
+
+      tx.onerror = (event) => {
+        console.error("Transaction failed:", event);
+      };
+    };
+
+    openRequest.onerror = () => {
+      console.error("Could not open IndexedDB:", openRequest.error);
     };
   };
 
@@ -38,9 +62,8 @@ const KeyManager = () => {
     const exportedKey = await window.crypto.subtle.exportKey("raw", key);
     const newKeyBuffer = new Uint8Array(exportedKey);
 
-    storeKeyInIndexedDB(newKeyBuffer);
-
-    setKeyBuffer(newKeyBuffer);
+    updateKey(newKeyBuffer);
+    setShowDownloadButton(true);
   };
 
   const downloadKey = () => {
@@ -69,11 +92,16 @@ const KeyManager = () => {
         const uploadedKeyBuffer = new Uint8Array(
           event.target.result as ArrayBuffer
         );
-        setKeyBuffer(uploadedKeyBuffer);
-        storeKeyInIndexedDB(uploadedKeyBuffer);
+        updateKey(uploadedKeyBuffer);
       }
     };
     reader.readAsArrayBuffer(file);
+    setShowDownloadButton(false);
+  };
+
+  const updateKey = (newKeyBuffer: Uint8Array) => {
+    setKeyBuffer(newKeyBuffer);
+    storeKeyInIndexedDB(newKeyBuffer);
   };
 
   const triggerFileInput = () => {
@@ -93,7 +121,7 @@ const KeyManager = () => {
       >
         Generate Key
       </button>
-      {keyBuffer && (
+      {keyBuffer && showDownloadButton && (
         <button
           onClick={downloadKey}
           className="bg-green-600 text-white hover:bg-green-700 px-12 py-1 rounded mb-2 w-64 text-center"
