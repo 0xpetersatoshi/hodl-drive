@@ -20,6 +20,11 @@ const Navbar = () => {
           </Link>
         </li>
         <li>
+          <Link href="/keys" className="text-white hover:underline">
+            Manage Keys
+          </Link>
+        </li>
+        <li>
           <ConnectButton />
         </li>
       </ul>
