@@ -12,9 +12,13 @@ export const GET = async (
   { params }: { params: TxUploadParams }
 ) => {
   const { id } = params;
+
+  console.log(`Getting transaction for tx id: ${id}`);
   const { errors, data } = await fetchGraphQL(getTxById, "getTxById", {
     txIds: id,
   });
+
+  console.log(`data: ${data}`);
 
   if (errors) {
     console.error(errors);

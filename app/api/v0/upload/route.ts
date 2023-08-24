@@ -47,7 +47,11 @@ export const POST = async (req: NextRequest) => {
     const uploadUrl = `https://arweave.net/${response.id}`;
     console.log(`Data uploaded ==> ${uploadUrl}`);
 
-    return NextResponse.json({ status: 200, message: uploadUrl });
+    return NextResponse.json({
+      status: 200,
+      message: uploadUrl,
+      id: response.id,
+    });
   } catch (error) {
     console.log("Error uploading file ", error);
     return NextResponse.json({ status: 500, error });

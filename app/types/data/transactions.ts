@@ -17,4 +17,4 @@ type TransactionEdge = {
   node: TransactionNode;
 };
 
-export type { TransactionEdge };
+export type { TransactionEdge, TransactionNode };
