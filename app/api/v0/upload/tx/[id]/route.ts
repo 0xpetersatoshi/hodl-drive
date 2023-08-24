@@ -18,8 +18,6 @@ export const GET = async (
     txIds: id,
   });
 
-  console.log(`data: ${data}`);
-
   if (errors) {
     console.error(errors);
     return NextResponse.json({ status: 500, errors });
