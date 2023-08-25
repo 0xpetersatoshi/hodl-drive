@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { useEncryptionKey } from "@/app/contexts/keys";
-import { config } from "@/app/config";
-import SingleTransaction from "../transaction/transaction.component";
+import Transaction from "../transaction/transaction.component";
 import { encryptData } from "@/app/utils";
 
 const UploadForm = () => {
@@ -70,7 +69,7 @@ const UploadForm = () => {
   return (
     <div>
       {transactionId ? (
-        <SingleTransaction id={transactionId} />
+        <Transaction id={transactionId} />
       ) : (
         <div className="flex flex-col items-center justify-between bg-black p-4 rounded text-white">
           <form

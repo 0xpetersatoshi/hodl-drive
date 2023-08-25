@@ -3,7 +3,7 @@ import { TransactionNode } from "@/app/types";
 import { decryptData } from "@/app/utils";
 import { useEncryptionKey } from "@/app/contexts/keys";
 
-type SingleTransactionProps = {
+type TransactionProps = {
   id: string;
 };
 
@@ -12,7 +12,7 @@ type Metadata = {
   contentType: string;
 };
 
-const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
+const Transaction: React.FC<TransactionProps> = ({ id }) => {
   const [transaction, setTransaction] = useState<TransactionNode | null>(null);
   const [metadata, setMetadata] = useState<Metadata | null>(null);
   const { keyBuffer } = useEncryptionKey();
@@ -67,7 +67,7 @@ const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
           </div>
 
           <div className="mb-4 truncate w-3/4">
-            <strong>Download URL: </strong>
+            <strong>Arweave URL: </strong>
             <a
               href={`https://arweave.net/${transaction.id}`}
               target="_blank"
@@ -77,12 +77,12 @@ const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
               https://arweave.net/{transaction.id}
             </a>
           </div>
-              <div className="mb-4">
-                <strong>Filename:</strong> {metadata.filename}
-              </div>
-              <div className="mb-4">
-                <strong>Content-Type:</strong> {metadata.contentType}
-              </div>
+          <div className="mb-4">
+            <strong>Filename:</strong> {metadata.filename}
+          </div>
+          <div className="mb-4">
+            <strong>Content-Type:</strong> {metadata.contentType}
+          </div>
         </div>
       ) : (
         <div>Loading...</div>
@@ -91,4 +91,4 @@ const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
   );
 };
 
-export default SingleTransaction;
+export default Transaction;
