@@ -52,7 +52,7 @@ const KeyManager = () => {
   const generateEncryptionKey = async () => {
     const key = await window.crypto.subtle.generateKey(
       {
-        name: "AES-GCM",
+        name: config.CRYPTO_ALGORITHM,
         length: 256,
       },
       true,

@@ -1,4 +1,5 @@
 const UPLOADER_ADDRESS = process.env.UPLOADER_ADDRESS as string;
+const CRYPTO_ALGORITHM = "AES-GCM";
 const INDEXED_DB_OBJECT_ID = "encryptionKey";
 const INDEXED_DB_NAME = process.env.NEXT_PUBLIC_INDEXED_DB_NAME as string;
 const INDEXED_DB_OBJECT_STORE = process.env
@@ -9,6 +10,7 @@ const WALLET_CONNECT_PROJECT_ID = process.env
   .NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string;
 
 export const config = {
+  CRYPTO_ALGORITHM,
   INDEXED_DB_NAME,
   INDEXED_DB_OBJECT_STORE,
   INDEXED_DB_OBJECT_ID,
