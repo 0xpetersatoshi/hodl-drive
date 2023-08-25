@@ -3,6 +3,7 @@ import { useAccount } from "wagmi";
 import { useEncryptionKey } from "@/app/contexts/keys";
 import { config } from "@/app/config";
 import SingleTransaction from "../transaction/transaction.component";
+import { encryptData } from "@/app/utils";
 
 const UploadForm = () => {
   const [data, setData] = useState("");
@@ -11,35 +12,6 @@ const UploadForm = () => {
   const [transactionId, setTransactionId] = useState<string | null>(null);
   const { keyBuffer } = useEncryptionKey();
   const { address, isConnecting, isDisconnected } = useAccount();
-
-  const encryptData = async (data: string) => {
-    const cryptoKey = await window.crypto.subtle.importKey(
-      "raw",
-      keyBuffer as Uint8Array,
-      config.CRYPTO_ALGORITHM,
-      true,
-      ["encrypt"]
-    );
-
-    const textBuffer = new TextEncoder().encode(data);
-    const iv = window.crypto.getRandomValues(new Uint8Array(12));
-
-    const encryptedBuffer = await window.crypto.subtle.encrypt(
-      {
-        name: config.CRYPTO_ALGORITHM,
-        iv: iv,
-      },
-      cryptoKey,
-      textBuffer
-    );
-
-    const encryptedArray = new Uint8Array(encryptedBuffer);
-    const base64Encrypted = btoa(String.fromCharCode(...encryptedArray));
-
-    const base64Iv = btoa(String.fromCharCode(...iv));
-
-    return { encryptedData: base64Encrypted, iv: base64Iv };
-  };
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -60,12 +32,13 @@ const UploadForm = () => {
         throw new Error(message);
       }
 
-      const encryptedFileData = await encryptData(data);
+      const encryptedFileData = await encryptData(data, keyBuffer);
       const encryptedMetadata = await encryptData(
         JSON.stringify({
           filename,
           contentType,
-        })
+        }),
+        keyBuffer
       );
 
       const dataToUpload = {
