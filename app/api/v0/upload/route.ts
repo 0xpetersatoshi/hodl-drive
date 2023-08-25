@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { bundlr } from "@/app/config/bundlr";
 
 export const POST = async (req: NextRequest) => {
-  const { address, data } = await req.json();
+  const { address, data, contentType } = await req.json();
   console.log(`address: ${address}`);
   console.log(`data: ${data}`);
 
@@ -13,7 +13,7 @@ export const POST = async (req: NextRequest) => {
   }
 
   const tags = [
-    { name: "Content-Type", value: "text/plain" },
+    { name: "Content-Type", value: contentType },
     { name: "address", value: address },
   ];
 

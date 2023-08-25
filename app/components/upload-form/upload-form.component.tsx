@@ -6,6 +6,8 @@ import SingleTransaction from "../transaction/transaction.component";
 
 const UploadForm = () => {
   const [data, setData] = useState("");
+  const [filename, setFilename] = useState("");
+  const [contentType, setContentType] = useState("text/plain");
   const [transactionId, setTransactionId] = useState<string | null>(null);
   const { keyBuffer } = useEncryptionKey();
   const { address, isConnecting, isDisconnected } = useAccount();
@@ -39,7 +41,9 @@ const UploadForm = () => {
     return { encryptedData: base64Encrypted, iv: base64Iv };
   };
 
-  const upload = async () => {
+  const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     try {
       if (isConnecting || isDisconnected) {
         const message =
@@ -56,13 +60,26 @@ const UploadForm = () => {
         throw new Error(message);
       }
 
-      const result = await encryptData(data);
-      console.log("Encrypted Data:", result.encryptedData);
-      console.log("IV:", result.iv);
+      const encryptedFileData = await encryptData(data);
+      const encryptedMetadata = await encryptData(
+        JSON.stringify({
+          filename,
+          contentType,
+        })
+      );
+
+      const dataToUpload = {
+        file: encryptedFileData,
+        metadata: encryptedMetadata,
+      };
 
       const response = await fetch("/api/v0/upload", {
         method: "POST",
-        body: JSON.stringify({ data: JSON.stringify(result), address }),
+        body: JSON.stringify({
+          data: JSON.stringify(dataToUpload),
+          address,
+          contentType,
+        }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -83,19 +100,34 @@ const UploadForm = () => {
         <SingleTransaction id={transactionId} />
       ) : (
         <div className="flex flex-col items-center justify-between bg-black p-4 rounded text-white">
-          <input
-            type="text"
-            className="bg-gray-800 px-2 py-1 rounded text-white placeholder-gray-500 focus:ring focus:ring-opacity-50 focus:ring-gray-600"
-            placeholder="Add data to your Drive"
-            onChange={(e) => setData(e.target.value)}
-          />
-
-          <button
-            className="bg-blue-600 text-white hover:bg-blue-700 mt-2 px-12 py-1 rounded"
-            onClick={upload}
+          <form
+            action=""
+            onSubmit={handleUpload}
+            className="flex flex-col items-center justify-between"
           >
-            Upload data
-          </button>
+            <input
+              type="text"
+              className="bg-gray-800 px-2 py-1 rounded text-white placeholder-gray-500 focus:ring focus:ring-opacity-50 focus:ring-gray-600 m-2"
+              placeholder="Add data to your Drive"
+              onChange={(e) => setData(e.target.value)}
+              required
+            />
+
+            <input
+              type="text"
+              className="bg-gray-800 px-2 py-1 rounded text-white placeholder-gray-500 focus:ring focus:ring-opacity-50 focus:ring-gray-600 m-2"
+              placeholder="Enter a filename"
+              onChange={(e) => setFilename(e.target.value)}
+              required
+            />
+
+            <button
+              type="submit"
+              className="bg-blue-600 text-white hover:bg-blue-700 mt-2 px-12 py-1 rounded"
+            >
+              Upload data
+            </button>
+          </form>
         </div>
       )}
     </div>
