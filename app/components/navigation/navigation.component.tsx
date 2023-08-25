@@ -10,7 +10,7 @@ const Navbar = () => {
 
       <ul className="flex space-x-4 items-center">
         <li>
-          <Link href="/" className="text-white hover:underline">
+          <Link href="/upload" className="text-white hover:underline">
             Upload
           </Link>
         </li>

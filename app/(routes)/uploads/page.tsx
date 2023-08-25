@@ -1,6 +1,6 @@
 "use client";
 
-import Uploads from "../components/uploads/uploads.component";
+import Uploads from "../../components/uploads/uploads.component";
 
 const Page = () => {
   return <Uploads />;

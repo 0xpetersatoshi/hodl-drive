@@ -1,6 +1,6 @@
 "use client";
 
-import KeyManager from "../components/key-manager/key-manager.component";
+import KeyManager from "../../components/key-manager/key-manager.component";
 
 const Page = () => {
   return (
