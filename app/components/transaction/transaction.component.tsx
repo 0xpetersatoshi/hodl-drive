@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { TransactionNode } from "@/app/types";
+import { decryptData } from "@/app/utils";
+import { useEncryptionKey } from "@/app/contexts/keys";
 
-interface SingleTransactionProps {
+type SingleTransactionProps = {
   id: string;
-}
+};
+
+type Metadata = {
+  filename: string;
+  contentType: string;
+};
 
 const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
   const [transaction, setTransaction] = useState<TransactionNode | null>(null);
+  const [metadata, setMetadata] = useState<Metadata | null>(null);
+  const { keyBuffer } = useEncryptionKey();
 
   useEffect(() => {
     const fetchTransaction = async () => {
@@ -15,7 +24,22 @@ const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
         const data = await response.json();
 
         if (response.status === 200) {
-          setTransaction(data.data.transactions.edges[0].node);
+          const node = data.data.transactions.edges[0].node;
+          setTransaction(node);
+
+          const arweaveResponse = await fetch(`https://arweave.net/${node.id}`);
+          const arweaveData = await arweaveResponse.json();
+          const { encryptedData, iv } = arweaveData.metadata;
+
+          // Decrypt the metadata
+          const decrypted = await decryptData(
+            encryptedData,
+            iv,
+            keyBuffer as Uint8Array
+          );
+
+          const metadata = JSON.parse(decrypted as string);
+          setMetadata(metadata);
         }
       } catch (error) {
         console.error("Error fetching transaction:", error);
@@ -23,11 +47,11 @@ const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
     };
 
     fetchTransaction();
-  }, [id]);
+  }, [id, keyBuffer]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black">
-      {transaction ? (
+      {transaction && metadata ? (
         <div className="bg-gray-800 p-6 m-4 rounded shadow-md w-1/2 text-white">
           <div className="flex flex-row mb-4">
             <strong className="whitespace-nowrap">Arweave ID:</strong>
@@ -53,6 +77,12 @@ const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
               https://arweave.net/{transaction.id}
             </a>
           </div>
+              <div className="mb-4">
+                <strong>Filename:</strong> {metadata.filename}
+              </div>
+              <div className="mb-4">
+                <strong>Content-Type:</strong> {metadata.contentType}
+              </div>
         </div>
       ) : (
         <div>Loading...</div>
