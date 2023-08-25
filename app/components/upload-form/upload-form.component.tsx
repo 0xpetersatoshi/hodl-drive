@@ -3,6 +3,7 @@ import { useAccount } from "wagmi";
 import { useEncryptionKey } from "@/app/contexts/keys";
 import Transaction from "../transaction/transaction.component";
 import { encryptData } from "@/app/utils";
+import { config } from "@/app/config";
 
 const UploadForm = () => {
   const [data, setData] = useState("");
@@ -43,6 +44,7 @@ const UploadForm = () => {
       const dataToUpload = {
         file: encryptedFileData,
         metadata: encryptedMetadata,
+        schemaVersion: config.SCHEMA_VERSION,
       };
 
       const response = await fetch("/api/v0/upload", {

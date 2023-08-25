@@ -68,7 +68,7 @@ const encryptData = async (data: string, keyBuffer: Uint8Array) => {
 
   const base64Iv = btoa(String.fromCharCode(...iv));
 
-  return { encryptedData: base64Encrypted, iv: base64Iv };
+  return { data: base64Encrypted, iv: base64Iv };
 };
 
 export { decryptData, encryptData };
