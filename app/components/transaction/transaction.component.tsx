@@ -47,42 +47,38 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
 
   return (
     <div className="flex flex-col items-center justify-center bg-black mb-4">
-      {transaction && metadata ? (
-        <div className="bg-gray-800 p-6 m-1 rounded shadow-md w-1/2 text-white">
-          <div className="flex flex-row mb-4">
-            <strong className="whitespace-nowrap">Arweave ID:</strong>
-            <div className="flex flex-row truncate w-1/2">
-              <span className="whitespace-nowrap mr-1"> </span>
-              <span className="truncate">{transaction.id}</span>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <strong>Uploaded At:</strong>{" "}
-            {new Date(transaction.timestamp).toLocaleString()}
-          </div>
-
-          <div className="mb-4 truncate w-3/4">
-            <strong>Arweave URL: </strong>
-            <a
-              href={`https://arweave.net/${transaction.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 overflow-ellipsis"
-            >
-              https://arweave.net/{transaction.id}
-            </a>
-          </div>
-          <div className="mb-4">
-            <strong>Filename:</strong> {metadata.filename}
-          </div>
-          <div className="mb-4">
-            <strong>Content-Type:</strong> {metadata.contentType}
+      <div className="bg-gray-800 p-6 m-1 rounded shadow-md w-1/2 text-white">
+        <div className="flex flex-row mb-4">
+          <strong className="whitespace-nowrap">Arweave ID:</strong>
+          <div className="flex flex-row truncate w-1/2">
+            <span className="whitespace-nowrap mr-1"> </span>
+            <span className="truncate">{transaction?.id}</span>
           </div>
         </div>
-      ) : (
-        <div>Loading...</div>
-      )}
+
+        <div className="mb-4">
+          <strong>Uploaded At:</strong>{" "}
+          {transaction ? new Date(transaction.timestamp).toLocaleString() : ""}
+        </div>
+
+        <div className="mb-4 truncate w-3/4">
+          <strong>Arweave URL: </strong>
+          <a
+            href={`https://arweave.net/${transaction?.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 overflow-ellipsis"
+          >
+            https://arweave.net/{transaction?.id}
+          </a>
+        </div>
+        <div className="mb-4">
+          <strong>Filename:</strong> {metadata?.filename}
+        </div>
+        <div className="mb-4">
+          <strong>Content-Type:</strong> {metadata?.contentType}
+        </div>
+      </div>
     </div>
   );
 };
