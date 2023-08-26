@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { TransactionEdge } from "@/app/types";
-import Transaction from "../transaction/transaction.component";
+import { BundlrApiResponse, TransactionNode } from "@/app/types";
+import TransactionList from "../transaction-list/transaction-list.component";
 
 const Uploads = () => {
   const { address, isConnecting, isDisconnected } = useAccount();
-  const [uploads, setUploads] = useState<TransactionEdge[]>([]);
+  const [uploads, setUploads] = useState<TransactionNode[]>([]);
 
   useEffect(() => {
     const fetchUploads = async () => {
@@ -18,11 +18,14 @@ const Uploads = () => {
               revalidate: 0,
             },
           });
-          const data = await response.json();
-          console.log(`data: ${data}`);
+          const bundlrData: BundlrApiResponse = await response.json();
+          console.log(`data: ${bundlrData}`);
 
           if (response.status === 200) {
-            setUploads(data.data.transactions.edges);
+            const nodes = bundlrData.data.transactions.edges.map(
+              (edge) => edge.node
+            );
+            setUploads(nodes);
           }
         } catch (error) {
           console.error("Error fetching uploads:", error);
@@ -41,9 +44,7 @@ const Uploads = () => {
           page.
         </div>
       ) : (
-        uploads.map((item) => (
-          <Transaction key={item.node.id} id={item.node.id} />
-        ))
+        <TransactionList transactions={uploads} />
       )}
     </div>
   );

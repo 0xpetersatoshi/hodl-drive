@@ -17,6 +17,7 @@ export const fetchGraphQL = async (
       operationName: operationName,
     }),
     headers: headers,
+    cache: "no-store",
   });
 
   return await result.json();

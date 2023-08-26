@@ -16,7 +16,9 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
   useEffect(() => {
     const fetchTransaction = async () => {
       try {
-        const response = await fetch(`/api/v0/upload/tx/${id}`);
+        const response = await fetch(`/api/v0/upload/tx/${id}`, {
+          next: { revalidate: 0 },
+        });
         const jsonResponse = await response.json();
 
         if (response.status === 200) {
