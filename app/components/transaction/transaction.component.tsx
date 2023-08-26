@@ -46,9 +46,9 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
   }, [id, keyBuffer]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black">
+    <div className="flex flex-col items-center justify-center bg-black mb-4">
       {transaction && metadata ? (
-        <div className="bg-gray-800 p-6 m-4 rounded shadow-md w-1/2 text-white">
+        <div className="bg-gray-800 p-6 m-1 rounded shadow-md w-1/2 text-white">
           <div className="flex flex-row mb-4">
             <strong className="whitespace-nowrap">Arweave ID:</strong>
             <div className="flex flex-row truncate w-1/2">
