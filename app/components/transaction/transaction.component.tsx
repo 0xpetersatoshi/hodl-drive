@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { TransactionNode } from "@/app/types";
 import { decryptData } from "@/app/utils";
 import { useEncryptionKey } from "@/app/contexts/keys";
-import type { ArweaveData, Metadata } from "@/app/types";
+import type { ArweaveData, Metadata, UploadData } from "@/app/types";
 
 type TransactionProps = {
   id: string;
@@ -11,6 +11,9 @@ type TransactionProps = {
 const Transaction: React.FC<TransactionProps> = ({ id }) => {
   const [transaction, setTransaction] = useState<TransactionNode | null>(null);
   const [metadata, setMetadata] = useState<Metadata | null>(null);
+  const [encryptedFileData, setEncryptedFileData] = useState<UploadData | null>(
+    null
+  );
   const { keyBuffer } = useEncryptionKey();
 
   useEffect(() => {
@@ -38,6 +41,9 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
 
           const metadata = JSON.parse(decrypted as string);
           setMetadata(metadata);
+
+          // Save encrypted data from response
+          setEncryptedFileData(arweaveData.file);
         }
       } catch (error) {
         console.error("Error fetching transaction:", error);
@@ -47,9 +53,37 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
     fetchTransaction();
   }, [id, keyBuffer]);
 
+  const downloadFile = async () => {
+    if (encryptedFileData && metadata) {
+      try {
+        const decryptedData = await decryptData(
+          encryptedFileData.data,
+          encryptedFileData.iv,
+          keyBuffer as Uint8Array
+        );
+
+        // Create Blob from decrypted data
+        const blob = new Blob([decryptedData as string], {
+          type: metadata.contentType,
+        });
+
+        const link = document.createElement("a");
+        link.style.display = "none";
+        link.href = URL.createObjectURL(blob);
+        link.download = metadata.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error("Error downloading the file:", error);
+      }
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center bg-black mb-4">
-      <div className="bg-gray-800 p-6 m-1 rounded shadow-md w-1/2 text-white">
+    <div className="flex flex-col items-center justify-center bg-black mb-4 w-full">
+      <div className="bg-gray-800 p-6 m-1 rounded shadow-md w-full md:w-1/2 lg:w-1/3 xl:w-1/4 text-white">
         <div className="flex flex-row mb-4">
           <strong className="whitespace-nowrap">Arweave ID:</strong>
           <div className="flex flex-row truncate w-1/2">
@@ -63,7 +97,7 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
           {transaction ? new Date(transaction.timestamp).toLocaleString() : ""}
         </div>
 
-        <div className="mb-4 truncate w-3/4">
+        <div className="mb-4 truncate w-full md:w-3/4 lg:w-2/3">
           <strong>Arweave URL: </strong>
           <a
             href={`https://arweave.net/${transaction?.id}`}
@@ -80,6 +114,12 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
         <div className="mb-4">
           <strong>Content-Type:</strong> {metadata?.contentType}
         </div>
+        <button
+          className="bg-blue-600 text-white hover:bg-blue-700 mt-2 px-6 py-1 rounded"
+          onClick={downloadFile}
+        >
+          Download
+        </button>
       </div>
     </div>
   );

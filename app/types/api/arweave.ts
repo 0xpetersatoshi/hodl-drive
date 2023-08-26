@@ -9,4 +9,4 @@ type ArweaveData = {
   schemaVersion: string;
 };
 
-export type { ArweaveData };
+export type { ArweaveData, UploadData };
