@@ -1,5 +1,5 @@
-export const getTxByAddress = `query getTxByAddress($owners: [String!], $tags: [TagFilter!], $limit: Int) {
-  transactions(owners: $owners tags: $tags limit: $limit) {
+export const getTxByAddress = `query getTxByAddress($owners: [String!], $tags: [TagFilter!], $limit: Int, $order: SortOrder) {
+  transactions(owners: $owners tags: $tags limit: $limit order: $order) {
     edges {
       node {
         id

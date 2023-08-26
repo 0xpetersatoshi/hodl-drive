@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { NextApiRequest } from "next";
 import { fetchGraphQL } from "@/app/utils/query";
 import { getTxByAddress } from "@/app/graphql";
-import {config} from "@/app/config";
+import { config } from "@/app/config";
 
 const DEFAULT_LIMIT = 100;
 
@@ -28,6 +28,7 @@ export const GET = async (
         },
       ],
       limit: DEFAULT_LIMIT,
+      order: "DESC",
     }
   );
 
