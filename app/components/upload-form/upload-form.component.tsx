@@ -5,17 +5,20 @@ import Transaction from "../transaction/transaction.component";
 import { encryptData } from "@/app/utils";
 import { config } from "@/app/config";
 import { ArweaveData } from "@/app/types";
+import Loading from "@/app/loading";
 
 const UploadForm = () => {
   const [data, setData] = useState("");
   const [filename, setFilename] = useState("");
   const [contentType, setContentType] = useState("text/plain");
   const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { keyBuffer } = useEncryptionKey();
   const { address, isConnecting, isDisconnected } = useAccount();
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       if (isConnecting || isDisconnected) {
@@ -66,12 +69,16 @@ const UploadForm = () => {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div>
-      {transactionId ? (
+      {isLoading ? (
+        <Loading />
+      ) : transactionId ? (
         <Transaction id={transactionId} />
       ) : (
         <div className="flex flex-col items-center justify-between bg-black p-4 rounded text-white">
