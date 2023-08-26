@@ -2,15 +2,10 @@ import React, { useEffect, useState } from "react";
 import { TransactionNode } from "@/app/types";
 import { decryptData } from "@/app/utils";
 import { useEncryptionKey } from "@/app/contexts/keys";
-import type { ArweaveData } from "@/app/types";
+import type { ArweaveData, Metadata } from "@/app/types";
 
 type TransactionProps = {
   id: string;
-};
-
-type Metadata = {
-  filename: string;
-  contentType: string;
 };
 
 const Transaction: React.FC<TransactionProps> = ({ id }) => {
