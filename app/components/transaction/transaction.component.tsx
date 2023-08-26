@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { TransactionNode } from "@/app/types";
 import { decryptData } from "@/app/utils";
 import { useEncryptionKey } from "@/app/contexts/keys";
+import type { ArweaveData } from "@/app/types";
 
 type TransactionProps = {
   id: string;
@@ -21,19 +22,19 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
     const fetchTransaction = async () => {
       try {
         const response = await fetch(`/api/v0/upload/tx/${id}`);
-        const data = await response.json();
+        const jsonResponse = await response.json();
 
         if (response.status === 200) {
-          const node = data.data.transactions.edges[0].node;
+          const node = jsonResponse.data.transactions.edges[0].node;
           setTransaction(node);
 
           const arweaveResponse = await fetch(`https://arweave.net/${node.id}`);
-          const arweaveData = await arweaveResponse.json();
-          const { encryptedData, iv } = arweaveData.metadata;
+          const arweaveData: ArweaveData = await arweaveResponse.json();
+          const { data, iv } = arweaveData.metadata;
 
           // Decrypt the metadata
           const decrypted = await decryptData(
-            encryptedData,
+            data,
             iv,
             keyBuffer as Uint8Array
           );

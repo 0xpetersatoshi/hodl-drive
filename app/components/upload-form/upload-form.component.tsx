@@ -4,6 +4,7 @@ import { useEncryptionKey } from "@/app/contexts/keys";
 import Transaction from "../transaction/transaction.component";
 import { encryptData } from "@/app/utils";
 import { config } from "@/app/config";
+import { ArweaveData } from "@/app/types";
 
 const UploadForm = () => {
   const [data, setData] = useState("");
@@ -41,7 +42,7 @@ const UploadForm = () => {
         keyBuffer
       );
 
-      const dataToUpload = {
+      const arweaveData: ArweaveData = {
         file: encryptedFileData,
         metadata: encryptedMetadata,
         schemaVersion: config.SCHEMA_VERSION,
@@ -50,7 +51,7 @@ const UploadForm = () => {
       const response = await fetch("/api/v0/upload", {
         method: "POST",
         body: JSON.stringify({
-          data: JSON.stringify(dataToUpload),
+          data: JSON.stringify(arweaveData),
           address,
           contentType,
         }),
