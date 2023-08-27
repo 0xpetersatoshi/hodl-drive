@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
+import Link from "next/link";
 import { useEncryptionKey } from "@/app/contexts/keys";
 import Transaction from "../transaction/transaction.component";
 import { encryptData } from "@/app/utils";
@@ -93,12 +94,35 @@ const UploadForm = () => {
     }
   };
 
+  const resetForm = () => {
+    setFile(null);
+    setFilename("");
+    setContentType("");
+    setTransactionId(null);
+    setIsLoading(false);
+  };
+
   return (
     <div>
       {isLoading ? (
         <Loading />
       ) : transactionId ? (
-        <Transaction id={transactionId} />
+        <div>
+          <Transaction id={transactionId} />
+          <div className="flex justify-center items-center space-x-4 mt-4">
+            <button
+              onClick={resetForm}
+              className="bg-blue-600 text-white hover:bg-blue-700 w-40 py-1 rounded"
+            >
+              Upload Another
+            </button>
+            <Link href="/uploads">
+              <button className="bg-blue-600 text-white hover:bg-blue-700 w-40 py-1 rounded">
+                View All Uploads
+              </button>
+            </Link>
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col items-center justify-between bg-black p-4 rounded text-white">
           <form
