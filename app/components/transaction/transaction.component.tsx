@@ -33,13 +33,16 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
           const { data, iv } = arweaveData.metadata;
 
           // Decrypt the metadata
-          const decrypted = await decryptData(
+          const decryptedMetadataBuffer = await decryptData(
             data,
             iv,
             keyBuffer as Uint8Array
           );
 
-          const metadata = JSON.parse(decrypted as string);
+          const decryptedMetadataString = new TextDecoder().decode(
+            decryptedMetadataBuffer
+          );
+          const metadata = JSON.parse(decryptedMetadataString);
           setMetadata(metadata);
 
           // Save encrypted data from response
@@ -63,7 +66,7 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
         );
 
         // Create Blob from decrypted data
-        const blob = new Blob([decryptedData as string], {
+        const blob = new Blob([decryptedData.buffer], {
           type: metadata.contentType,
         });
 

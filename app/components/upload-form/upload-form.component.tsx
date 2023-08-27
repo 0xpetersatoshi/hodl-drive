@@ -8,13 +8,22 @@ import { ArweaveData } from "@/app/types";
 import Loading from "@/app/loading";
 
 const UploadForm = () => {
-  const [data, setData] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [filename, setFilename] = useState("");
-  const [contentType, setContentType] = useState("text/plain");
+  const [contentType, setContentType] = useState("");
   const [transactionId, setTransactionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { keyBuffer } = useEncryptionKey();
   const { address, isConnecting, isDisconnected } = useAccount();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFile(file);
+      setFilename(file.name);
+      setContentType(file.type);
+    }
+  };
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,36 +45,46 @@ const UploadForm = () => {
         throw new Error(message);
       }
 
-      const encryptedFileData = await encryptData(data, keyBuffer);
-      const encryptedMetadata = await encryptData(
-        JSON.stringify({
-          filename,
-          contentType,
-        }),
-        keyBuffer
-      );
+      if (file && keyBuffer) {
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        reader.onloadend = async () => {
+          const dataBuffer = new Uint8Array(reader.result as ArrayBuffer);
+          const encryptedFileData = await encryptData(dataBuffer, keyBuffer);
 
-      const arweaveData: ArweaveData = {
-        file: encryptedFileData,
-        metadata: encryptedMetadata,
-        schemaVersion: config.SCHEMA_VERSION,
-      };
+          const metadata = JSON.stringify({ filename, contentType });
+          const metadataBuffer = new TextEncoder().encode(metadata);
+          const encryptedMetadata = await encryptData(
+            metadataBuffer,
+            keyBuffer
+          );
 
-      const response = await fetch("/api/v0/upload", {
-        method: "POST",
-        body: JSON.stringify({
-          data: JSON.stringify(arweaveData),
-          address,
-          contentType,
-        }),
-        headers: { "Content-Type": "application/json" },
-      });
+          const arweaveData: ArweaveData = {
+            file: encryptedFileData,
+            metadata: encryptedMetadata,
+            schemaVersion: config.SCHEMA_VERSION,
+          };
 
-      const jsonResponse = await response.json();
-      console.log(`response: ${JSON.stringify(jsonResponse, null, " ")}`);
+          const response = await fetch("/api/v0/upload", {
+            method: "POST",
+            body: JSON.stringify({
+              data: JSON.stringify(arweaveData),
+              address,
+            }),
+            headers: { "Content-Type": "application/json" },
+          });
 
-      if (jsonResponse.id) {
-        setTransactionId(jsonResponse.id);
+          const jsonResponse = await response.json();
+          console.log(`response: ${JSON.stringify(jsonResponse, null, " ")}`);
+
+          if (jsonResponse.id) {
+            setTransactionId(jsonResponse.id);
+          }
+        };
+      } else {
+        const message = "No file to upload.";
+        alert(message);
+        throw new Error(message);
       }
     } catch (error) {
       console.error(error);
@@ -88,18 +107,9 @@ const UploadForm = () => {
             className="flex flex-col items-center justify-between"
           >
             <input
-              type="text"
-              className="bg-gray-800 px-2 py-1 rounded text-white placeholder-gray-500 focus:ring focus:ring-opacity-50 focus:ring-gray-600 m-2"
-              placeholder="Add data to your Drive"
-              onChange={(e) => setData(e.target.value)}
-              required
-            />
-
-            <input
-              type="text"
-              className="bg-gray-800 px-2 py-1 rounded text-white placeholder-gray-500 focus:ring focus:ring-opacity-50 focus:ring-gray-600 m-2"
-              placeholder="Enter a filename"
-              onChange={(e) => setFilename(e.target.value)}
+              type="file"
+              className="bg-gray-800 px-2 py-1 rounded text-white m-2"
+              onChange={handleFileChange}
               required
             />
 
