@@ -6,7 +6,6 @@ import KeyManager from "../../components/key-manager/key-manager.component";
 const Page = () => {
   return (
     <div className="bg-black dark:text-white min-h-screen py-12">
-      {/* Add this section for the warning box */}
       <section className="bg-red-600 text-white p-4 rounded-lg mb-2 mx-auto max-w-2xl">
         <h2 className="font-bold text-2xl mb-2">Warning:</h2>
         <p className="text-lg">
