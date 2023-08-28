@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { bundlr } from "@/app/config/bundlr";
+import { config } from "@/app/config";
 
 export const POST = async (req: NextRequest) => {
   const { address, data } = await req.json();
@@ -15,6 +16,7 @@ export const POST = async (req: NextRequest) => {
   const tags = [
     { name: "Content-Type", value: "application/json" },
     { name: "address", value: address },
+    { name: "schemaVersion", value: config.SCHEMA_VERSION },
   ];
 
   // Upload data

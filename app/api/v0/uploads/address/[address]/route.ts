@@ -26,6 +26,10 @@ export const GET = async (
           name: "address",
           values: address,
         },
+        {
+          name: "schemaVersion",
+          values: config.SCHEMA_VERSION,
+        },
       ],
       limit: DEFAULT_LIMIT,
       order: "DESC",
