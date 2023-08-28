@@ -6,6 +6,13 @@ import { FC } from "react";
 const Home: FC = () => {
   return (
     <div className="dark:bg-gray-900 dark:text-white min-h-screen py-12">
+      <section className="bg-red-600 text-white p-4 rounded-lg mb-2 mx-auto max-w-2xl">
+        <h2 className="font-bold text-2xl mb-2">Warning:</h2>
+        <p className="text-lg">
+          This app is experimental and still in development. App is currently
+          using Bundlr&#39;s devnet network so uploads are not permanent!
+        </p>
+      </section>
       {/* Hero Section */}
       <section className="text-center">
         <h1 className="text-4xl font-bold mb-4">Welcome to HODL Drive</h1>
