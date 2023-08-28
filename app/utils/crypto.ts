@@ -1,12 +1,14 @@
 import { config } from "@/app/config";
 import { UploadData } from "@/app/types";
+import { compressData, decompressData } from ".";
 
 const CHUNK_SIZE = 256 * 256;
 
 const decryptData = async (
   encryptedData: string,
   iv: string,
-  keyBuffer: Uint8Array
+  keyBuffer: Uint8Array,
+  decompress = true
 ): Promise<Uint8Array> => {
   try {
     // Convert base64 encoded encrypted data and IV back to Uint8Array
@@ -34,7 +36,13 @@ const decryptData = async (
       encryptedDataBuffer
     );
 
-    return new Uint8Array(decryptedBuffer);
+    const data = new Uint8Array(decryptedBuffer);
+
+    if (decompress) {
+      return decompressData(data);
+    }
+
+    return data;
   } catch (error: any) {
     throw new Error(`Decryption failed: ${error.message}`);
   }
@@ -42,7 +50,8 @@ const decryptData = async (
 
 const encryptData = async (
   dataBuffer: Uint8Array,
-  keyBuffer: Uint8Array
+  keyBuffer: Uint8Array,
+  compress = true
 ): Promise<UploadData> => {
   try {
     const cryptoKey = await window.crypto.subtle.importKey(
@@ -55,13 +64,20 @@ const encryptData = async (
 
     const iv = window.crypto.getRandomValues(new Uint8Array(12));
 
+    let dataToEncrypt;
+    if (compress) {
+      dataToEncrypt = compressData(dataBuffer);
+    } else {
+      dataToEncrypt = dataBuffer;
+    }
+
     const encryptedBuffer = await window.crypto.subtle.encrypt(
       {
         name: config.CRYPTO_ALGORITHM,
         iv: iv,
       },
       cryptoKey,
-      dataBuffer
+      dataToEncrypt
     );
 
     const encryptedArray = new Uint8Array(encryptedBuffer);
@@ -77,7 +93,8 @@ const encryptData = async (
 
 const encryptDataInChunks = async (
   dataBuffer: Uint8Array,
-  keyBuffer: Uint8Array
+  keyBuffer: Uint8Array,
+  compress = true
 ): Promise<UploadData[]> => {
   try {
     const cryptoKey = await window.crypto.subtle.importKey(
@@ -94,13 +111,20 @@ const encryptDataInChunks = async (
       const chunk = dataBuffer.subarray(i, i + CHUNK_SIZE);
       const iv = window.crypto.getRandomValues(new Uint8Array(12));
 
+      let dataToEncrypt;
+      if (compress) {
+        dataToEncrypt = compressData(chunk);
+      } else {
+        dataToEncrypt = chunk;
+      }
+
       const encryptedBuffer = await window.crypto.subtle.encrypt(
         {
           name: config.CRYPTO_ALGORITHM,
           iv: iv,
         },
         cryptoKey,
-        chunk
+        dataToEncrypt
       );
 
       const encryptedArray = new Uint8Array(encryptedBuffer);
