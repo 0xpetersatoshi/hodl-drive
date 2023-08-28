@@ -54,8 +54,8 @@ export const POST = async (req: NextRequest) => {
       message: uploadUrl,
       id: response.id,
     });
-  } catch (error) {
-    console.log("Error uploading file ", error);
-    return NextResponse.json({ status: 500, error });
+  } catch (error: any) {
+    console.log("Error uploading file:", error);
+    return NextResponse.json({ status: 500, error: error.message });
   }
 };

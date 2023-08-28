@@ -1,6 +1,6 @@
 import Bundlr from "@bundlr-network/client";
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const PRIVATE_KEY = process.env.APP_PRIVATE_KEY;
 const NETWORK = "https://devnet.bundlr.network";
 const PROVIDER_URL = "https://rpc-mumbai.maticvigil.com";
 const CURRENCY = "matic";

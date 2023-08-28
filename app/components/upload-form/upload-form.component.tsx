@@ -7,6 +7,7 @@ import { encryptData, encryptDataInChunks } from "@/app/utils";
 import { config } from "@/app/config";
 import { ArweaveData } from "@/app/types";
 import Loading from "@/app/loading";
+import Error from "../error/error.component";
 
 const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -14,6 +15,7 @@ const UploadForm = () => {
   const [contentType, setContentType] = useState("");
   const [transactionId, setTransactionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { keyBuffer } = useEncryptionKey();
   const { address, isConnecting, isDisconnected } = useAccount();
 
@@ -43,15 +45,13 @@ const UploadForm = () => {
       if (isConnecting || isDisconnected) {
         const message =
           "Wallet is not connected. Please connect before uploading.";
-        alert(message);
-        throw new Error(message);
+        setError(message);
       }
 
       if (!keyBuffer) {
         const message =
           "Key buffer is null; encryption key not generated or uploaded";
-        alert(message);
-        throw new Error(message);
+        setError(message);
       }
 
       if (file && keyBuffer) {
@@ -84,14 +84,17 @@ const UploadForm = () => {
         });
 
         const jsonResponse = await response.json();
+        if (jsonResponse.status !== 200) {
+          console.log(`Error: ${jsonResponse.error}`);
+          setError(`API Error: ${jsonResponse.error}`);
+        }
 
         if (jsonResponse.id) {
           setTransactionId(jsonResponse.id);
         }
       } else {
         const message = "No file to upload.";
-        alert(message);
-        throw new Error(message);
+        setError(message);
       }
     } catch (error) {
       console.error(error);
@@ -106,12 +109,29 @@ const UploadForm = () => {
     setContentType("");
     setTransactionId(null);
     setIsLoading(false);
+    setError("");
   };
 
   return (
     <div>
       {isLoading ? (
         <Loading />
+      ) : error ? (
+        <div className="flex flex-col items-center justify-between mt-4 w-full">
+          <div className="w-full flex justify-center">
+            <div className="w-80">
+              {" "}
+              {/* Change width here */}
+              <Error message={error} />
+            </div>
+          </div>
+          <button
+            onClick={resetForm}
+            className="bg-blue-600 text-white hover:bg-blue-700 w-40 py-1 rounded"
+          >
+            Try Upload Again
+          </button>
+        </div>
       ) : transactionId ? (
         <div>
           <Transaction id={transactionId} />

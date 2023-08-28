@@ -1,5 +1,5 @@
 const SCHEMA_VERSION = "1.0";
-const UPLOADER_ADDRESS = process.env.UPLOADER_ADDRESS as string;
+const UPLOADER_ADDRESS = process.env.APP_UPLOADER_ADDRESS as string;
 const CRYPTO_ALGORITHM = "AES-GCM";
 const INDEXED_DB_OBJECT_ID = "encryptionKey";
 const INDEXED_DB_NAME = process.env.NEXT_PUBLIC_INDEXED_DB_NAME as string;
