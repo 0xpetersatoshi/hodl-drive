@@ -4,10 +4,12 @@ import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { BundlrApiResponse, TransactionNode } from "@/app/types";
 import TransactionList from "@/app/components/transaction-list/transaction-list.component";
+import Loading from "@/app/loading";
 
 const Page = () => {
   const { address, isConnecting, isDisconnected } = useAccount();
   const [uploads, setUploads] = useState<TransactionNode[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [hasNoUploads, setHasNoUploads] = useState(true);
 
   useEffect(() => {
@@ -33,6 +35,8 @@ const Page = () => {
           }
         } catch (error) {
           console.error("Error fetching uploads:", error);
+        } finally {
+          setIsLoading(false);
         }
       }
     };
@@ -47,6 +51,8 @@ const Page = () => {
           Wallet is not connected. Please connect your wallet to access this
           page.
         </div>
+      ) : isLoading ? (
+        <Loading />
       ) : hasNoUploads ? (
         <div className="bg-gray-700 text-white p-4 rounded-md">
           No files uploaded to drive.
