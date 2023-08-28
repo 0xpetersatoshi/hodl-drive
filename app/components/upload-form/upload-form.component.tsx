@@ -26,6 +26,15 @@ const UploadForm = () => {
     }
   };
 
+  const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onloadend = () => resolve(reader.result as ArrayBuffer);
+      reader.onerror = () => reject(reader.error);
+    });
+  };
+
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -37,7 +46,6 @@ const UploadForm = () => {
         alert(message);
         throw new Error(message);
       }
-      console.log(`connected address: ${address}`);
 
       if (!keyBuffer) {
         const message =
@@ -47,46 +55,39 @@ const UploadForm = () => {
       }
 
       if (file && keyBuffer) {
-        const reader = new FileReader();
-        reader.readAsArrayBuffer(file);
-        reader.onloadend = async () => {
-          const dataBuffer = new Uint8Array(reader.result as ArrayBuffer);
-          const encryptedFileData = await encryptDataInChunks(
-            dataBuffer,
-            keyBuffer
-          );
+        const dataBuffer = new Uint8Array(await readFileAsArrayBuffer(file));
 
-          const metadata = JSON.stringify({ filename, contentType });
-          const metadataBuffer = new TextEncoder().encode(metadata);
-          const encryptedMetadata = await encryptData(
-            metadataBuffer,
-            keyBuffer
-          );
+        const encryptedFileData = await encryptDataInChunks(
+          dataBuffer,
+          keyBuffer
+        );
 
-          const arweaveData: ArweaveData = {
-            file: {
-              chunks: encryptedFileData,
-            },
-            metadata: encryptedMetadata,
-            schemaVersion: config.SCHEMA_VERSION,
-          };
+        const metadata = JSON.stringify({ filename, contentType });
+        const metadataBuffer = new TextEncoder().encode(metadata);
+        const encryptedMetadata = await encryptData(metadataBuffer, keyBuffer);
 
-          const response = await fetch("/api/v0/upload", {
-            method: "POST",
-            body: JSON.stringify({
-              data: JSON.stringify(arweaveData),
-              address,
-            }),
-            headers: { "Content-Type": "application/json" },
-          });
-
-          const jsonResponse = await response.json();
-          console.log(`response: ${JSON.stringify(jsonResponse, null, " ")}`);
-
-          if (jsonResponse.id) {
-            setTransactionId(jsonResponse.id);
-          }
+        const arweaveData: ArweaveData = {
+          file: {
+            chunks: encryptedFileData,
+          },
+          metadata: encryptedMetadata,
+          schemaVersion: config.SCHEMA_VERSION,
         };
+
+        const response = await fetch("/api/v0/upload", {
+          method: "POST",
+          body: JSON.stringify({
+            data: JSON.stringify(arweaveData),
+            address,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const jsonResponse = await response.json();
+
+        if (jsonResponse.id) {
+          setTransactionId(jsonResponse.id);
+        }
       } else {
         const message = "No file to upload.";
         alert(message);
