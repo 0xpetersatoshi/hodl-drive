@@ -5,7 +5,7 @@ import KeyManager from "../../components/key-manager/key-manager.component";
 
 const Page = () => {
   return (
-    <div className="bg-black dark:text-white min-h-screen py-12">
+    <div className="dark:bg-gray-900 dark:text-white min-h-screen py-12">
       <section className="bg-red-600 text-white p-4 rounded-lg mb-2 mx-auto max-w-2xl">
         <h2 className="font-bold text-2xl mb-2">Warning:</h2>
         <p className="text-lg">
@@ -14,14 +14,14 @@ const Page = () => {
           upload this encryption key any time you want to come back and access
           your files from{" "}
           <Link href="/uploads">
-            <button className="text-blue-300 dark:text-blue-600">
+            <button className="text-gray-500 dark:text-gray-700">
               MyDrive
             </button>
           </Link>{" "}
           as it is used to decrypt your uploads.
         </p>
       </section>
-      <div className="bg-black p-4 text-white flex flex-col justify-center items-center">
+      <div className="dark:bg-gray-900 p-4 text-white flex flex-col justify-center items-center">
         <h1 className="text-2xl font-bold mb-4 text-center">
           Manage Encryption Keys
         </h1>

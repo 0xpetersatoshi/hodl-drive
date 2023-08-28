@@ -7,7 +7,7 @@ type TransactionListProps = {
 
 const TransactionList = ({ transactions }: TransactionListProps) => {
   return (
-    <div className="flex flex-col items-center justify-center bg-black w-full p-4">
+    <div className="bg-gray-900 flex flex-col items-center justify-center w-full p-4">
       {transactions.map((transaction) => (
         <Transaction key={transaction.id} id={transaction.id} />
       ))}

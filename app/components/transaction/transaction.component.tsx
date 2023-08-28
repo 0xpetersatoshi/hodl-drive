@@ -103,8 +103,8 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-black mb-4 w-full">
-      <div className="bg-gray-800 p-6 m-2 rounded shadow-md w-2/3 text-white">
+    <div className="bg-gray-900 flex flex-col items-center justify-center mb-4 w-full">
+      <div className="bg-gray-700 p-6 m-2 rounded shadow-md w-2/3 text-white">
         <div className="flex flex-row mb-4">
           <strong className="whitespace-nowrap">Arweave ID:</strong>
           <div className="flex flex-row truncate w-1/2">

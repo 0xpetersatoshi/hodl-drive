@@ -3,7 +3,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const Navbar = () => {
   return (
-    <div className="flex justify-between items-center bg-red-500 p-4">
+    <div className="flex justify-between items-center bg-custom-navbar-color p-4">
       <Link href="/" className="text-xl font-bold text-white">
         HODL Drive
       </Link>

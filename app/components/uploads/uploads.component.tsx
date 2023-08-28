@@ -41,14 +41,14 @@ const Uploads = () => {
   }, [address, isConnecting, isDisconnected]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black">
+    <div className="bg-gray-900 flex flex-col items-center justify-center min-h-screen">
       {isConnecting || isDisconnected ? (
         <div className="bg-red-600 text-white p-4 rounded-md">
           Wallet is not connected. Please connect your wallet to access this
           page.
         </div>
       ) : hasNoUploads ? (
-        <div className="bg-gray-800 text-white p-4 rounded-md">
+        <div className="bg-gray-700 text-white p-4 rounded-md">
           No files uploaded to drive.
         </div>
       ) : (

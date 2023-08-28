@@ -114,7 +114,7 @@ const KeyManager = () => {
   }, []);
 
   return (
-    <div className="bg-black p-4 rounded text-white flex flex-col items-center">
+    <div className="dark:bg-gray-900 p-4 rounded text-white flex flex-col items-center">
       <button
         onClick={generateEncryptionKey}
         className="bg-blue-600 text-white hover:bg-blue-700 px-12 py-1 rounded mb-2 w-64 text-center"

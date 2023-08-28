@@ -129,7 +129,7 @@ const UploadForm = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-between bg-black p-4 rounded text-white">
+        <div className="dark:bg-gray-900 flex flex-col items-center justify-between p-4 rounded text-white">
           <form
             action=""
             onSubmit={handleUpload}
@@ -137,7 +137,7 @@ const UploadForm = () => {
           >
             <input
               type="file"
-              className="bg-gray-800 px-2 py-1 rounded text-white m-2"
+              className="bg-gray-700 px-2 py-1 rounded text-white m-2"
               onChange={handleFileChange}
               required
             />
