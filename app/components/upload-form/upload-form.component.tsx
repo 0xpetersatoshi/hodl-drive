@@ -46,12 +46,14 @@ const UploadForm = () => {
         const message =
           "Wallet is not connected. Please connect before uploading.";
         setError(message);
+        return;
       }
 
       if (!keyBuffer) {
         const message =
           "Key buffer is null; encryption key not generated or uploaded";
         setError(message);
+        return;
       }
 
       if (file && keyBuffer) {
@@ -83,18 +85,26 @@ const UploadForm = () => {
           headers: { "Content-Type": "application/json" },
         });
 
+        console.log(`Response status code: ${response.status}`);
         const jsonResponse = await response.json();
-        if (jsonResponse.status !== 200) {
-          console.log(`Error: ${jsonResponse.error}`);
+
+        if (response.status !== 200) {
           setError(`API Error: ${jsonResponse.error}`);
+          return;
         }
 
         if (jsonResponse.id) {
           setTransactionId(jsonResponse.id);
         }
       } else {
-        const message = "No file to upload.";
-        setError(message);
+        if (!file) {
+          setError("No file to upload.");
+        } else {
+          setError(
+            "Encryption key missing. Please upload or generate under 'Manage Keys'"
+          );
+        }
+        return;
       }
     } catch (error) {
       console.error(error);
@@ -121,7 +131,6 @@ const UploadForm = () => {
           <div className="w-full flex justify-center">
             <div className="w-80">
               {" "}
-              {/* Change width here */}
               <Error message={error} />
             </div>
           </div>
