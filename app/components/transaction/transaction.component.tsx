@@ -11,9 +11,9 @@ type TransactionProps = {
 const Transaction: React.FC<TransactionProps> = ({ id }) => {
   const [transaction, setTransaction] = useState<TransactionNode | null>(null);
   const [metadata, setMetadata] = useState<Metadata | null>(null);
-  const [encryptedFileData, setEncryptedFileData] = useState<UploadData | null>(
-    null
-  );
+  const [encryptedFileData, setEncryptedFileData] = useState<
+    UploadData[] | null
+  >(null);
   const { keyBuffer } = useEncryptionKey();
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
           setMetadata(metadata);
 
           // Save encrypted data from response
-          setEncryptedFileData(arweaveData.file);
+          setEncryptedFileData(arweaveData.file.chunks);
         }
       } catch (error) {
         console.error("Error fetching transaction:", error);
@@ -59,14 +59,32 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
   const downloadFile = async () => {
     if (encryptedFileData && metadata) {
       try {
-        const decryptedData = await decryptData(
-          encryptedFileData.data,
-          encryptedFileData.iv,
-          keyBuffer as Uint8Array
+        const decryptedChunks: Uint8Array[] = [];
+        for (const chunk of encryptedFileData) {
+          const decryptedData = await decryptData(
+            chunk.data,
+            chunk.iv,
+            keyBuffer as Uint8Array
+          );
+
+          decryptedChunks.push(decryptedData);
+        }
+
+        // Step 4: Combine Chunks
+        const totalLength = decryptedChunks.reduce(
+          (acc, val) => acc + val.length,
+          0
         );
+        const combinedData = new Uint8Array(totalLength);
+
+        let offset = 0;
+        for (const chunk of decryptedChunks) {
+          combinedData.set(chunk, offset);
+          offset += chunk.length;
+        }
 
         // Create Blob from decrypted data
-        const blob = new Blob([decryptedData.buffer], {
+        const blob = new Blob([combinedData], {
           type: metadata.contentType,
         });
 

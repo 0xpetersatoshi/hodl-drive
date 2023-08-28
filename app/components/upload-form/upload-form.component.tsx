@@ -3,7 +3,7 @@ import { useAccount } from "wagmi";
 import Link from "next/link";
 import { useEncryptionKey } from "@/app/contexts/keys";
 import Transaction from "../transaction/transaction.component";
-import { encryptData } from "@/app/utils";
+import { encryptData, encryptDataInChunks } from "@/app/utils";
 import { config } from "@/app/config";
 import { ArweaveData } from "@/app/types";
 import Loading from "@/app/loading";
@@ -51,7 +51,10 @@ const UploadForm = () => {
         reader.readAsArrayBuffer(file);
         reader.onloadend = async () => {
           const dataBuffer = new Uint8Array(reader.result as ArrayBuffer);
-          const encryptedFileData = await encryptData(dataBuffer, keyBuffer);
+          const encryptedFileData = await encryptDataInChunks(
+            dataBuffer,
+            keyBuffer
+          );
 
           const metadata = JSON.stringify({ filename, contentType });
           const metadataBuffer = new TextEncoder().encode(metadata);
@@ -61,7 +64,9 @@ const UploadForm = () => {
           );
 
           const arweaveData: ArweaveData = {
-            file: encryptedFileData,
+            file: {
+              chunks: encryptedFileData,
+            },
             metadata: encryptedMetadata,
             schemaVersion: config.SCHEMA_VERSION,
           };

@@ -1,6 +1,8 @@
 import { config } from "@/app/config";
 import { UploadData } from "@/app/types";
 
+const CHUNK_SIZE = 256 * 256;
+
 const decryptData = async (
   encryptedData: string,
   iv: string,
@@ -73,4 +75,45 @@ const encryptData = async (
   }
 };
 
-export { decryptData, encryptData };
+const encryptDataInChunks = async (
+  dataBuffer: Uint8Array,
+  keyBuffer: Uint8Array
+): Promise<UploadData[]> => {
+  try {
+    const cryptoKey = await window.crypto.subtle.importKey(
+      "raw",
+      keyBuffer,
+      config.CRYPTO_ALGORITHM,
+      true,
+      ["encrypt"]
+    );
+
+    const chunkedData: UploadData[] = [];
+
+    for (let i = 0; i < dataBuffer.length; i += CHUNK_SIZE) {
+      const chunk = dataBuffer.subarray(i, i + CHUNK_SIZE);
+      const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+      const encryptedBuffer = await window.crypto.subtle.encrypt(
+        {
+          name: config.CRYPTO_ALGORITHM,
+          iv: iv,
+        },
+        cryptoKey,
+        chunk
+      );
+
+      const encryptedArray = new Uint8Array(encryptedBuffer);
+      const base64Encrypted = btoa(String.fromCharCode(...encryptedArray));
+      const base64Iv = btoa(String.fromCharCode(...iv));
+
+      chunkedData.push({ data: base64Encrypted, iv: base64Iv });
+    }
+
+    return chunkedData;
+  } catch (error: any) {
+    throw new Error(`Encryption failed: ${error.message}`);
+  }
+};
+
+export { decryptData, encryptData, encryptDataInChunks };

@@ -8,6 +8,7 @@ import TransactionList from "../transaction-list/transaction-list.component";
 const Uploads = () => {
   const { address, isConnecting, isDisconnected } = useAccount();
   const [uploads, setUploads] = useState<TransactionNode[]>([]);
+  const [hasNoUploads, setHasNoUploads] = useState(true);
 
   useEffect(() => {
     const fetchUploads = async () => {
@@ -25,6 +26,9 @@ const Uploads = () => {
             const nodes = bundlrData.data.transactions.edges.map(
               (edge) => edge.node
             );
+            if (nodes.length > 0) {
+              setHasNoUploads(false);
+            }
             setUploads(nodes);
           }
         } catch (error) {
@@ -42,6 +46,10 @@ const Uploads = () => {
         <div className="bg-red-600 text-white p-4 rounded-md">
           Wallet is not connected. Please connect your wallet to access this
           page.
+        </div>
+      ) : hasNoUploads ? (
+        <div className="bg-gray-800 text-white p-4 rounded-md">
+          No files uploaded to drive.
         </div>
       ) : (
         <TransactionList transactions={uploads} />

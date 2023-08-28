@@ -3,10 +3,14 @@ type UploadData = {
   iv: string;
 };
 
+type ChunkedUploadData = {
+  chunks: UploadData[];
+};
+
 type ArweaveData = {
-  file: UploadData;
+  file: ChunkedUploadData;
   metadata: UploadData;
   schemaVersion: string;
 };
 
-export type { ArweaveData, UploadData };
+export type { ArweaveData, UploadData, ChunkedUploadData };
