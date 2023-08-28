@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import { NextApiRequest } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchGraphQL } from "@/app/utils/query";
 import { getTxByAddress } from "@/app/graphql";
 import { config } from "@/app/config";
@@ -11,7 +10,7 @@ type AddressUploadParams = {
 };
 
 export const GET = async (
-  _: NextApiRequest,
+  _: NextRequest,
   { params }: { params: AddressUploadParams }
 ) => {
   const { address } = params;
