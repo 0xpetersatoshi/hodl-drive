@@ -19,7 +19,7 @@ const Page = () => {
           section. You will be able to view a list of all your uploads from the{" "}
           <Link href="/uploads">
             <button className="text-blue-300 dark:text-blue-600">
-              Uploads
+              MyDrive
             </button>
           </Link>{" "}
           section.
