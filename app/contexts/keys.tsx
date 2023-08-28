@@ -33,8 +33,22 @@ export const EncryptionKeyProvider = ({
     const fetchKeyFromIndexedDB = async () => {
       const openRequest = indexedDB.open(config.INDEXED_DB_NAME);
 
+      openRequest.onupgradeneeded = (event) => {
+        // Database is either newly created or upgraded
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains(config.INDEXED_DB_OBJECT_STORE)) {
+          db.createObjectStore(config.INDEXED_DB_OBJECT_STORE, {
+            keyPath: "id",
+          });
+        }
+      };
+
       openRequest.onsuccess = () => {
         const db = openRequest.result;
+        if (!db.objectStoreNames.contains(config.INDEXED_DB_OBJECT_STORE)) {
+          console.error("Object store not found");
+          return;
+        }
         const transaction = db.transaction(
           [config.INDEXED_DB_OBJECT_STORE],
           "readonly"
@@ -54,6 +68,10 @@ export const EncryptionKeyProvider = ({
             // No key was found, set to null
             setKeyBuffer(null);
           }
+        };
+
+        openRequest.onerror = () => {
+          console.error("Could not open db:", openRequest.error);
         };
 
         keyRequest.onerror = () => {
