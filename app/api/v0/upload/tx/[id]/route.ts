@@ -20,7 +20,7 @@ export const GET = async (
 
   if (errors) {
     console.error(errors);
-    return NextResponse.json({ status: 500, errors });
+    return NextResponse.json({ error: errors }, { status: 500 });
   }
 
   return NextResponse.json({ status: 200, data });

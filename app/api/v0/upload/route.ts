@@ -10,7 +10,7 @@ export const POST = async (req: NextRequest) => {
   if (!address || !data) {
     const error = "No address or data provided with request!";
     console.error(error);
-    return NextResponse.json({ status: 400, error });
+    return NextResponse.json({ error }, { status: 400 });
   }
 
   const tags = [
@@ -56,6 +56,6 @@ export const POST = async (req: NextRequest) => {
     });
   } catch (error: any) {
     console.log("Error uploading file:", error);
-    return NextResponse.json({ status: 500, error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 };
