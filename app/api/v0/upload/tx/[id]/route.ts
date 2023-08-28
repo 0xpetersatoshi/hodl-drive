@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import { NextApiRequest } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchGraphQL } from "@/app/utils/query";
 import { getTxById } from "@/app/graphql";
 
@@ -8,7 +7,7 @@ type TxUploadParams = {
 };
 
 export const GET = async (
-  _: NextApiRequest,
+  _: NextRequest,
   { params }: { params: TxUploadParams }
 ) => {
   const { id } = params;
