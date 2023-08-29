@@ -1,39 +1,53 @@
+"use client";
+
 import Link from "next/link";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useState } from "react";
 
 const Navbar = () => {
-  return (
-    <div className="flex justify-between items-center bg-custom-navbar-color p-4">
-      <Link href="/" className="text-xl font-bold text-white">
-        <div className="flex items-center text-xl font-bold text-white">
-          <Image
-            src="/hodl-drive.svg"
-            alt="HODL Drive Logo"
-            width={48}
-            height={48}
-          />
-          HODL Drive
-        </div>
-      </Link>
+  const [isOpen, setIsOpen] = useState(false);
 
-      <ul className="flex space-x-4 items-center">
-        <li>
-          <Link href="/upload" className="text-white hover:underline">
-            Upload
-          </Link>
+  return (
+    <div className="flex flex-wrap items-center justify-between bg-custom-navbar-color p-4">
+      {/* Logo Section */}
+      <div className="flex items-center">
+        <Link href="/">
+          <div className="flex items-center text-xl font-bold text-white cursor-pointer">
+            <Image
+              src="/hodl-drive.svg"
+              alt="HODL Drive Logo"
+              width={48}
+              height={48}
+            />
+            HODL Drive
+          </div>
+        </Link>
+      </div>
+
+      {/* Hamburger */}
+      <div className="lg:hidden">
+        <button onClick={() => setIsOpen(!isOpen)}>
+          <i className="fa fa-bars text-white"></i>
+        </button>
+      </div>
+
+      {/* Menu */}
+      <ul
+        className={`${
+          isOpen ? "block" : "hidden"
+        } lg:flex lg:space-x-4 w-full lg:w-auto`}
+      >
+        <li className="lg:mt-0 mt-2 text-white hover:underline">
+          <Link href="/upload">Upload</Link>
         </li>
-        <li>
-          <Link href="/uploads" className="text-white hover:underline">
-            MyDrive
-          </Link>
+        <li className="lg:mt-0 mt-2 text-white hover:underline">
+          <Link href="/uploads">MyDrive</Link>
         </li>
-        <li>
-          <Link href="/keys" className="text-white hover:underline">
-            Manage Keys
-          </Link>
+        <li className="lg:mt-0 mt-2 text-white hover:underline">
+          <Link href="/keys">Manage Keys</Link>
         </li>
-        <li>
+        <li className="lg:mt-0 mt-2">
           <ConnectButton />
         </li>
       </ul>
