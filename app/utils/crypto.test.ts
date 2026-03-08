@@ -139,3 +139,26 @@ describe("encryptDataInChunks", () => {
     expect(uniqueIvs.size).toBe(ivs.length);
   });
 });
+
+describe("crypto error handling", () => {
+  it("rejects for invalid key length (e.g. 15 bytes)", async () => {
+    const badKey = new Uint8Array(15);
+    const data = new TextEncoder().encode("test data");
+
+    await expect(encryptData(data, badKey, false)).rejects.toThrow(
+      "Encryption failed"
+    );
+  });
+
+  it("rejects for corrupted base64 ciphertext", async () => {
+    const key = generateKey();
+    const corruptedData = "!!!not-valid-base64!!!";
+    const validIv = btoa(
+      String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(12)))
+    );
+
+    await expect(
+      decryptData(corruptedData, validIv, key, false)
+    ).rejects.toThrow("Decryption failed");
+  });
+});

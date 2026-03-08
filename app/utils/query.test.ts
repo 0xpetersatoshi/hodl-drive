@@ -79,4 +79,40 @@ describe("fetchGraphQL", () => {
 
     expect(result).toEqual(mockResponse);
   });
+
+  it("propagates fetch network errors", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(
+      new TypeError("Failed to fetch")
+    );
+
+    await expect(fetchGraphQL("query { test }")).rejects.toThrow(
+      "Failed to fetch"
+    );
+  });
+
+  it("propagates JSON parse errors", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      json: () => Promise.reject(new SyntaxError("Unexpected token <")),
+    } as Response);
+
+    await expect(fetchGraphQL("query { test }")).rejects.toThrow(
+      "Unexpected token <"
+    );
+  });
+
+  it("returns GraphQL error responses without throwing", async () => {
+    const errorResponse = {
+      errors: [{ message: "Field 'foo' not found" }],
+      data: null,
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      json: () => Promise.resolve(errorResponse),
+    } as Response);
+
+    const result = await fetchGraphQL("query { foo }");
+
+    expect(result).toEqual(errorResponse);
+    expect(result.errors).toHaveLength(1);
+    expect(result.data).toBeNull();
+  });
 });

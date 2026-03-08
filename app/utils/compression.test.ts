@@ -23,4 +23,10 @@ describe("compression", () => {
 
     expect(Array.from(decompressed)).toEqual(Array.from(empty));
   });
+
+  it("decompressData throws on non-gzip input", () => {
+    const notGzip = new Uint8Array([0, 1, 2, 3, 4, 5]);
+
+    expect(() => decompressData(notGzip)).toThrow();
+  });
 });
