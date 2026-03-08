@@ -8,6 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm doppler-dev` — Start dev server with Doppler secrets injection
 - `pnpm build` — Production build
 - `pnpm lint` — Run ESLint (next lint, extends `next/core-web-vitals`)
+- `pnpm test` — Run tests once (Vitest)
+- `pnpm test:watch` — Run tests in watch mode
+- `pnpm test:coverage` — Run tests with coverage report
 
 ## Environment Variables
 
