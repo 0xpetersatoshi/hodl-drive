@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `yarn dev` — Start dev server (requires env vars via `source .env` or Doppler)
-- `yarn doppler-dev` — Start dev server with Doppler secrets injection
-- `yarn build` — Production build
-- `yarn lint` — Run ESLint (next lint, extends `next/core-web-vitals`)
+- `pnpm dev` — Start dev server (requires env vars via `source .env` or Doppler)
+- `pnpm doppler-dev` — Start dev server with Doppler secrets injection
+- `pnpm build` — Production build
+- `pnpm lint` — Run ESLint (next lint, extends `next/core-web-vitals`)
 
 ## Environment Variables
 
@@ -22,7 +22,7 @@ Client-side (prefixed with `NEXT_PUBLIC_`):
 
 ## Architecture
 
-Next.js 13 App Router project with client-side encryption for decentralized file storage on Arweave via Bundlr Network. Uses `yarn` as package manager.
+Next.js 13 App Router project with client-side encryption for decentralized file storage on Arweave via Bundlr Network. Uses `pnpm` as package manager.
 
 ### Data Flow
 

@@ -17,17 +17,17 @@ This is an experimental [nextjs](https://nextjs.org/docs) app that does the foll
 1. Install dependencies:
 
     ```{bash}
-    yarn install
+    pnpm install
     ```
 
 2. Run app:
 
-    > Note: This project uses [doppler](https://www.doppler.com/) to manage secrets and config variables but you can also just create `.env` file to manage environment variables. The `yarn doppler-dev` script has been added for usage with doppler.
+    > Note: This project uses [doppler](https://www.doppler.com/) to manage secrets and config variables but you can also just create `.env` file to manage environment variables. The `pnpm doppler-dev` script has been added for usage with doppler.
 
     ```{bash}
     source .env
-    yarn dev
+    pnpm dev
 
     # or if you configured doppler
-    yarn doppler-dev
+    pnpm doppler-dev
     ```
