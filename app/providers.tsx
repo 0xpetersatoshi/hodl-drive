@@ -2,13 +2,19 @@
 
 import React from "react";
 import "@rainbow-me/rainbowkit/styles.css";
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { mainnet, polygon, optimism, arbitrum, base, zora } from "wagmi/chains";
-import { publicProvider } from "wagmi/providers/public";
-import { MockConnector } from "wagmi/connectors/mock";
-import { createWalletClient, http } from "viem";
-import { config } from "@/app/config";
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { WagmiProvider, createConfig, http, useConnect, useAccount } from "wagmi";
+import {
+  mainnet,
+  polygon,
+  optimism,
+  arbitrum,
+  base,
+  zora,
+} from "wagmi/chains";
+import { mock } from "wagmi/connectors";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { config as appConfig } from "@/app/config";
 
 declare global {
   interface Window {
@@ -16,46 +22,58 @@ declare global {
   }
 }
 
-const { chains, publicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum, base, zora],
-  [publicProvider()]
-);
+const queryClient = new QueryClient();
+
+const chains = [mainnet, polygon, optimism, arbitrum, base, zora] as const;
+
+const transports = {
+  [mainnet.id]: http(),
+  [polygon.id]: http(),
+  [optimism.id]: http(),
+  [arbitrum.id]: http(),
+  [base.id]: http(),
+  [zora.id]: http(),
+};
 
 function getWagmiConfig() {
   if (typeof window !== "undefined" && window.__TEST_WALLET__) {
     const testAddress = window.__TEST_WALLET__.address as `0x${string}`;
-    const mockWalletClient = createWalletClient({
-      account: testAddress,
-      chain: mainnet,
-      transport: http(),
-    });
-
-    const mockConnector = new MockConnector({
-      chains,
-      options: {
-        walletClient: mockWalletClient,
-        flags: { isAuthorized: true },
-      },
-    });
 
     return createConfig({
-      autoConnect: true,
-      connectors: [mockConnector],
-      publicClient,
+      chains,
+      transports,
+      connectors: [
+        mock({
+          accounts: [testAddress],
+        }),
+      ],
     });
   }
 
-  const { connectors } = getDefaultWallets({
-    appName: config.WALLET_CONNECT_PROJECT_NAME,
-    projectId: config.WALLET_CONNECT_PROJECT_ID,
+  return getDefaultConfig({
+    appName: appConfig.WALLET_CONNECT_PROJECT_NAME || "HODL Drive",
+    projectId: appConfig.WALLET_CONNECT_PROJECT_ID || "test-project-id",
     chains,
+    transports,
   });
+}
 
-  return createConfig({
-    autoConnect: true,
-    connectors,
-    publicClient,
-  });
+function AutoConnectMock({ children }: { children: React.ReactNode }) {
+  const { connect, connectors } = useConnect();
+  const { isConnected } = useAccount();
+
+  React.useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      window.__TEST_WALLET__ &&
+      !isConnected &&
+      connectors.length > 0
+    ) {
+      connect({ connector: connectors[0] });
+    }
+  }, [connect, connectors, isConnected]);
+
+  return <>{children}</>;
 }
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
@@ -63,10 +81,14 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   const [wagmiConfig] = React.useState(() => getWagmiConfig());
   React.useEffect(() => setMounted(true), []);
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains} appInfo={{ appName: "HODL Drive" }}>
-        {mounted && children}
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <AutoConnectMock>
+            {mounted && children}
+          </AutoConnectMock>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };

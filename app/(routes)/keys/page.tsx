@@ -1,32 +1,36 @@
 "use client";
 
 import Link from "next/link";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle } from "lucide-react";
 import KeyManager from "../../components/key-manager/key-manager.component";
 
 const Page = () => {
   return (
-    <div className="dark:bg-gray-900 dark:text-white min-h-screen py-12">
-      <section className="bg-red-600 text-white p-4 rounded-lg mb-2 mx-auto max-w-2xl">
-        <h2 className="font-bold text-2xl mb-2">Warning:</h2>
-        <p className="text-lg">
+    <div className="max-w-2xl mx-auto py-8 space-y-6">
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Warning</AlertTitle>
+        <AlertDescription>
           Store your encryption key in a secure location. This key encrypts your
           files on the client-side before uploading to Arweave. You will need to
           upload this encryption key any time you want to come back and access
           your files from{" "}
-          <Link href="/uploads">
-            <button className="text-gray-500 dark:text-gray-700">
-              MyDrive
-            </button>
+          <Link href="/uploads" className="underline font-medium">
+            MyDrive
           </Link>{" "}
           as it is used to decrypt your uploads.
-        </p>
-      </section>
-      <div className="dark:bg-gray-900 p-4 text-white flex flex-col justify-center items-center">
-        <h1 className="text-2xl font-bold mb-4 text-center">
-          Manage Encryption Keys
-        </h1>
-        <KeyManager />
-      </div>
+        </AlertDescription>
+      </Alert>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-center">Manage Encryption Keys</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <KeyManager />
+        </CardContent>
+      </Card>
     </div>
   );
 };

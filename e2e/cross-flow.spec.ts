@@ -41,7 +41,7 @@ test.describe("Cross-Flow", () => {
     await expect(page.getByText("Arweave ID:")).toBeVisible({ timeout: 10000 });
 
     // Step 3: View uploads
-    await page.getByRole("button", { name: "View All Uploads" }).click();
+    await page.getByRole("link", { name: "View All Uploads" }).click();
     await expect(page).toHaveURL("/uploads");
 
     // Should see the uploads list
@@ -103,21 +103,20 @@ test.describe("Cross-Flow", () => {
   test("landing page step links all work", async ({ page }) => {
     await page.goto("/");
 
-    // The landing page has buttons inside links for each step
-    // Step 1: Manage Keys (inside the step section, not navbar)
-    const mainContent = page.locator("div.flex-grow");
+    // The landing page has links inside cards for each step
+    const mainContent = page.locator("main");
 
-    await mainContent.getByRole("button", { name: "Manage Keys" }).click();
+    await mainContent.getByRole("link", { name: "Manage Keys" }).click();
     await expect(page).toHaveURL("/keys");
     await page.goto("/");
 
     // Step 3: Upload
-    await mainContent.getByRole("button", { name: "Upload" }).click();
+    await mainContent.getByRole("link", { name: "Upload" }).click();
     await expect(page).toHaveURL("/upload");
     await page.goto("/");
 
     // Step 4: MyDrive
-    await mainContent.getByRole("button", { name: "MyDrive" }).click();
+    await mainContent.getByRole("link", { name: "MyDrive" }).click();
     await expect(page).toHaveURL("/uploads");
   });
 
@@ -141,11 +140,10 @@ test.describe("Cross-Flow", () => {
     await newPage.goto("http://localhost:3000/keys");
 
     // Upload the previously downloaded key file
-    const fileInput = newPage.locator('input[type="file"]');
-    await fileInput.setInputFiles(downloadPath!);
+    const keyFileInput = newPage.locator('input[type="file"]');
+    await keyFileInput.setInputFiles(downloadPath!);
 
     // Verify key was loaded by checking the context has a key buffer
-    // Wait for async IndexedDB operations to complete, then check via evaluate
     await expect(async () => {
       const hasKey = await newPage.evaluate(async () => {
         return new Promise<boolean>((resolve) => {

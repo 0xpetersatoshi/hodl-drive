@@ -5,15 +5,11 @@ import { config } from "@/app/config";
 
 const DEFAULT_LIMIT = 100;
 
-type AddressUploadParams = {
-  address: string;
-};
-
 export const GET = async (
   _: NextRequest,
-  { params }: { params: AddressUploadParams }
+  { params }: { params: Promise<{ address: string }> }
 ) => {
-  const { address } = params;
+  const { address } = await params;
   console.log(`address: ${address}`);
   const { errors, data } = await fetchGraphQL(
     getTxByAddress,

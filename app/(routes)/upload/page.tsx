@@ -1,30 +1,29 @@
 "use client";
 
 import Link from "next/link";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 import UploadForm from "@/app/components/upload-form/upload-form.component";
 
 const Page = () => {
   return (
-    <div className="dark:bg-gray-900 dark:text-white min-h-screen py-12">
-      <section className="bg-gray-700 text-white p-4 rounded-lg mb-2 mx-auto max-w-2xl">
-        <h2 className="font-bold text-2xl mb-2">How It Works:</h2>
-        <p className="text-lg">
+    <div className="max-w-2xl mx-auto py-8 space-y-6">
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertTitle>How It Works</AlertTitle>
+        <AlertDescription>
           Any file you choose to upload will be encrypted (client-side) using
-          the encryption key you generated or uploaded under the{"  "}
-          <Link href="/keys">
-            <button className="text-blue-300 dark:text-blue-600">
-              Manage Keys
-            </button>
+          the encryption key you generated or uploaded under the{" "}
+          <Link href="/keys" className="underline font-medium">
+            Manage Keys
           </Link>{" "}
           section. You will be able to view a list of all your uploads from the{" "}
-          <Link href="/uploads">
-            <button className="text-blue-300 dark:text-blue-600">
-              MyDrive
-            </button>
+          <Link href="/uploads" className="underline font-medium">
+            MyDrive
           </Link>{" "}
           section.
-        </p>
-      </section>
+        </AlertDescription>
+      </Alert>
       <UploadForm />
     </div>
   );

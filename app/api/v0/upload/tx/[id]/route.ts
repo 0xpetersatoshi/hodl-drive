@@ -2,15 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchGraphQL } from "@/app/utils/query";
 import { getTxById } from "@/app/graphql";
 
-type TxUploadParams = {
-  id: string;
-};
-
 export const GET = async (
   _: NextRequest,
-  { params }: { params: TxUploadParams }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
-  const { id } = params;
+  const { id } = await params;
 
   console.log(`Getting transaction for tx id: ${id}`);
   const { errors, data } = await fetchGraphQL(getTxById, "getTxById", {

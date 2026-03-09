@@ -24,7 +24,6 @@ test.describe("Key Management", () => {
 
     const downloadButton = page.getByRole("button", { name: "Download Key" });
     await expect(downloadButton).toBeVisible();
-    await expect(downloadButton).toHaveClass(/bg-green-600/);
   });
 
   test("Download Key triggers file download", async ({ page }) => {

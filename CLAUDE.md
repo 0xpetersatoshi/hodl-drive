@@ -7,10 +7,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm dev` — Start dev server (requires env vars via `source .env` or Doppler)
 - `pnpm doppler-dev` — Start dev server with Doppler secrets injection
 - `pnpm build` — Production build
-- `pnpm lint` — Run ESLint (next lint, extends `next/core-web-vitals`)
+- `pnpm lint` — Run ESLint (next lint, flat config via `eslint.config.mjs`)
 - `pnpm test` — Run tests once (Vitest)
 - `pnpm test:watch` — Run tests in watch mode
 - `pnpm test:coverage` — Run tests with coverage report
+- `pnpm test:e2e` — Run Playwright e2e tests
 
 ## Environment Variables
 
@@ -21,11 +22,29 @@ Server-side (prefixed with `APP_`):
 Client-side (prefixed with `NEXT_PUBLIC_`):
 - `NEXT_PUBLIC_INDEXED_DB_NAME`, `NEXT_PUBLIC_INDEXED_DB_OBJECT_STORE` — IndexedDB config for encryption key storage
 - `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_NAME`, `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` — WalletConnect/RainbowKit config
-- `NEXT_PUBLIC_APP_GITHUB_USERNAME` — GitHub username for footer link
+- `NEXT_PUBLIC_APP_GITHUB_USERNAME` — GitHub username for sidebar footer link
 
 ## Architecture
 
-Next.js 13 App Router project with client-side encryption for decentralized file storage on Arweave via Bundlr Network. Uses `pnpm` as package manager.
+Next.js 16 App Router project (Turbopack) with client-side encryption for decentralized file storage on Arweave via Bundlr Network. Uses `pnpm` as package manager.
+
+### Tech Stack
+
+- **Next.js 16** with Turbopack (React 19)
+- **Tailwind CSS v4** — CSS-first config via `@import "tailwindcss"` in `globals.css`, no `tailwind.config.ts`
+- **shadcn/ui** — Component library in `components/ui/`, configured via `components.json`
+- **Lucide React** — Icon library (replaced Font Awesome)
+- **next-themes** — Dark/light mode support via `ThemeProvider`
+- **Wagmi v2 + RainbowKit v2 + Viem v2** — Wallet connection and blockchain interaction
+- **@tanstack/react-query** — Required by Wagmi v2
+
+### Layout: Google Drive-Style Sidebar
+
+The app uses a sidebar + header + content area layout (inspired by Google Drive):
+
+- `AppSidebar` (`app/components/app-sidebar.tsx`) — Left sidebar with nav links (Home, MyDrive, Upload, Manage Keys) and GitHub footer
+- `AppHeader` (`app/components/app-header.tsx`) — Top header with sidebar trigger, ConnectButton, and dark/light mode toggle
+- `SidebarProvider` + `SidebarInset` from shadcn sidebar component wraps the layout
 
 ### Data Flow
 
@@ -35,12 +54,15 @@ Next.js 13 App Router project with client-side encryption for decentralized file
 
 ### Provider Stack (app/layout.tsx)
 
-`WagmiConfig` → `RainbowKitProvider` → `EncryptionKeyProvider` → page content
+`ThemeProvider` → `WagmiProvider` → `QueryClientProvider` → `RainbowKitProvider` → `EncryptionKeyProvider` → `TooltipProvider` → `SidebarProvider` → page content
 
 ### Key Directories
 
 - `app/api/v0/` — Next.js route handlers (server-side, interact with Bundlr SDK)
-- `app/components/` — React components (all client-side, `*.component.tsx` naming convention)
+- `app/components/` — App-level React components (`*.component.tsx` naming for domain components, plain `.tsx` for layout)
+- `components/ui/` — shadcn/ui components (Button, Card, Alert, Sidebar, etc.)
+- `lib/utils.ts` — `cn()` helper (clsx + tailwind-merge)
+- `hooks/` — Custom hooks (e.g., `use-mobile.ts`)
 - `app/contexts/keys.tsx` — EncryptionKey context (IndexedDB persistence)
 - `app/config/` — App config constants and Bundlr SDK initialization (server-side Bundlr instance)
 - `app/utils/` — Client-side crypto (encrypt/decrypt), compression (pako), and GraphQL query helper
@@ -49,10 +71,10 @@ Next.js 13 App Router project with client-side encryption for decentralized file
 
 ### Routes
 
-- `/` — Landing page with usage instructions
+- `/` — Landing page with usage instructions (Card grid)
 - `/keys` — Encryption key management (generate/upload/download)
 - `/upload` — File upload form (requires wallet + encryption key)
-- `/uploads` — List user's uploaded files by wallet address
+- `/uploads` — List user's uploaded files by wallet address (responsive grid)
 
 ### API Endpoints
 
@@ -67,3 +89,4 @@ Next.js 13 App Router project with client-side encryption for decentralized file
 - Encryption uses Web Crypto API (AES-GCM) — all crypto operations happen client-side
 - The server never sees unencrypted data; it only relays encrypted payloads to Bundlr
 - Wallet connection supports mainnet, Polygon, Optimism, Arbitrum, Base, and Zora chains
+- E2e tests use `window.__TEST_WALLET__` injection with wagmi `mock()` connector for wallet simulation

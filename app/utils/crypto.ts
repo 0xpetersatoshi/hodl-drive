@@ -4,6 +4,12 @@ import { compressData, decompressData } from ".";
 
 const CHUNK_SIZE = 256 * 256;
 
+// Helper to convert Uint8Array to a proper ArrayBuffer for Web Crypto API
+// Required because TS 5.9 is strict about Uint8Array<ArrayBufferLike> vs ArrayBuffer
+function toBuffer(data: Uint8Array): ArrayBuffer {
+  return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
+}
+
 const decryptData = async (
   encryptedData: string,
   iv: string,
@@ -20,7 +26,7 @@ const decryptData = async (
     // Import the encryption key into the Web Crypto API
     const cryptoKey = await window.crypto.subtle.importKey(
       "raw",
-      keyBuffer,
+      toBuffer(keyBuffer),
       config.CRYPTO_ALGORITHM,
       true,
       ["decrypt"]
@@ -30,10 +36,10 @@ const decryptData = async (
     const decryptedBuffer = await window.crypto.subtle.decrypt(
       {
         name: config.CRYPTO_ALGORITHM,
-        iv: ivBuffer,
+        iv: toBuffer(ivBuffer),
       },
       cryptoKey,
-      encryptedDataBuffer
+      toBuffer(encryptedDataBuffer)
     );
 
     const data = new Uint8Array(decryptedBuffer);
@@ -56,7 +62,7 @@ const encryptData = async (
   try {
     const cryptoKey = await window.crypto.subtle.importKey(
       "raw",
-      keyBuffer,
+      toBuffer(keyBuffer),
       config.CRYPTO_ALGORITHM,
       true,
       ["encrypt"]
@@ -64,20 +70,15 @@ const encryptData = async (
 
     const iv = window.crypto.getRandomValues(new Uint8Array(12));
 
-    let dataToEncrypt;
-    if (compress) {
-      dataToEncrypt = compressData(dataBuffer);
-    } else {
-      dataToEncrypt = dataBuffer;
-    }
+    const dataToEncrypt = compress ? compressData(dataBuffer) : dataBuffer;
 
     const encryptedBuffer = await window.crypto.subtle.encrypt(
       {
         name: config.CRYPTO_ALGORITHM,
-        iv: iv,
+        iv: toBuffer(iv),
       },
       cryptoKey,
-      dataToEncrypt
+      toBuffer(dataToEncrypt)
     );
 
     const encryptedArray = new Uint8Array(encryptedBuffer);
@@ -99,7 +100,7 @@ const encryptDataInChunks = async (
   try {
     const cryptoKey = await window.crypto.subtle.importKey(
       "raw",
-      keyBuffer,
+      toBuffer(keyBuffer),
       config.CRYPTO_ALGORITHM,
       true,
       ["encrypt"]
@@ -111,20 +112,15 @@ const encryptDataInChunks = async (
       const chunk = dataBuffer.subarray(i, i + CHUNK_SIZE);
       const iv = window.crypto.getRandomValues(new Uint8Array(12));
 
-      let dataToEncrypt;
-      if (compress) {
-        dataToEncrypt = compressData(chunk);
-      } else {
-        dataToEncrypt = chunk;
-      }
+      const dataToEncrypt = compress ? compressData(chunk) : chunk;
 
       const encryptedBuffer = await window.crypto.subtle.encrypt(
         {
           name: config.CRYPTO_ALGORITHM,
-          iv: iv,
+          iv: toBuffer(iv),
         },
         cryptoKey,
-        dataToEncrypt
+        toBuffer(dataToEncrypt)
       );
 
       const encryptedArray = new Uint8Array(encryptedBuffer);

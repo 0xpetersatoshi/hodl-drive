@@ -3,6 +3,27 @@ import { TransactionNode } from "@/app/types";
 import { decryptData } from "@/app/utils";
 import { useEncryptionKey } from "@/app/contexts/keys";
 import type { ArweaveData, Metadata, UploadData } from "@/app/types";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Download, ExternalLink, Copy } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type TransactionProps = {
   id: string;
@@ -20,7 +41,7 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
     const fetchTransaction = async () => {
       try {
         const response = await fetch(`/api/v0/upload/tx/${id}`, {
-          next: { revalidate: 0 },
+          cache: "no-store",
         });
         const jsonResponse = await response.json();
 
@@ -32,7 +53,6 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
           const arweaveData: ArweaveData = await arweaveResponse.json();
           const { data, iv } = arweaveData.metadata;
 
-          // Decrypt the metadata
           const decryptedMetadataBuffer = await decryptData(
             data,
             iv,
@@ -45,7 +65,6 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
           const metadata = JSON.parse(decryptedMetadataString);
           setMetadata(metadata);
 
-          // Save encrypted data from response
           setEncryptedFileData(arweaveData.file.chunks);
         }
       } catch (error) {
@@ -70,7 +89,6 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
           decryptedChunks.push(decryptedData);
         }
 
-        // Step 4: Combine Chunks
         const totalLength = decryptedChunks.reduce(
           (acc, val) => acc + val.length,
           0
@@ -83,7 +101,6 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
           offset += chunk.length;
         }
 
-        // Create Blob from decrypted data
         const blob = new Blob([combinedData], {
           type: metadata.contentType,
         });
@@ -102,47 +119,81 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
     }
   };
 
-  return (
-    <div className="bg-gray-900 flex flex-col items-center justify-center mb-4 w-full">
-      <div className="bg-gray-700 p-6 m-2 rounded shadow-md w-2/3 text-white">
-        <div className="flex flex-row mb-4">
-          <strong className="whitespace-nowrap">Arweave ID:</strong>
-          <div className="flex flex-row truncate w-1/2">
-            <span className="whitespace-nowrap mr-1"> </span>
-            <span className="truncate">{transaction?.id}</span>
-          </div>
-        </div>
+  const arweaveUrl = `https://arweave.net/${transaction?.id}`;
 
-        <div className="mb-4">
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <span>Arweave ID:</span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="truncate max-w-[200px] font-mono text-sm">
+                {transaction?.id}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{transaction?.id}</p>
+            </TooltipContent>
+          </Tooltip>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 text-sm">
+        <div>
           <strong>Uploaded At:</strong>{" "}
           {transaction ? new Date(transaction.timestamp).toLocaleString() : ""}
         </div>
-
-        <div className="mb-4 truncate w-full md:w-3/4 lg:w-2/3">
+        <div className="truncate">
           <strong>Arweave URL: </strong>
           <a
-            href={`https://arweave.net/${transaction?.id}`}
+            href={arweaveUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-400 overflow-ellipsis"
+            className="text-primary underline"
           >
-            https://arweave.net/{transaction?.id}
+            {arweaveUrl}
           </a>
         </div>
-        <div className="mb-4">
+        <div>
           <strong>Filename:</strong> {metadata?.filename}
         </div>
-        <div className="mb-4">
-          <strong>Content-Type:</strong> {metadata?.contentType}
+        <div className="flex items-center gap-2">
+          <strong>Content-Type:</strong>
+          {metadata?.contentType && (
+            <Badge variant="secondary">{metadata.contentType}</Badge>
+          )}
         </div>
-        <button
-          className="bg-blue-600 text-white hover:bg-blue-700 mt-2 px-6 py-1 rounded"
-          onClick={downloadFile}
-        >
+      </CardContent>
+      <CardFooter className="flex gap-2">
+        <Button size="sm" onClick={downloadFile}>
+          <Download className="mr-2 h-4 w-4" />
           Download
-        </button>
-      </div>
-    </div>
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="outline">
+              Actions
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              onClick={() =>
+                navigator.clipboard.writeText(arweaveUrl)
+              }
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Copy URL
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <a href={arweaveUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Open in Arweave
+              </a>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </CardFooter>
+    </Card>
   );
 };
 

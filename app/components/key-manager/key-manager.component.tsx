@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { config } from "@/app/config";
 import { useEncryptionKey } from "@/app/contexts/keys";
+import { Button } from "@/components/ui/button";
+import { KeyRound, Download, Upload } from "lucide-react";
 
 const KeyManager = () => {
   const [showDownloadButton, setShowDownloadButton] = useState(false);
@@ -68,7 +70,7 @@ const KeyManager = () => {
 
   const downloadKey = () => {
     if (keyBuffer) {
-      const blob = new Blob([keyBuffer.buffer], {
+      const blob = new Blob([new Uint8Array(keyBuffer)], {
         type: "application/octet-stream",
       });
       const url = URL.createObjectURL(blob);
@@ -114,27 +116,21 @@ const KeyManager = () => {
   }, []);
 
   return (
-    <div className="dark:bg-gray-900 p-4 rounded text-white flex flex-col items-center">
-      <button
-        onClick={generateEncryptionKey}
-        className="bg-blue-600 text-white hover:bg-blue-700 px-12 py-1 rounded mb-2 w-64 text-center"
-      >
+    <div className="flex flex-col items-center gap-2">
+      <Button onClick={generateEncryptionKey} className="w-64">
+        <KeyRound className="mr-2 h-4 w-4" />
         Generate Key
-      </button>
+      </Button>
       {keyBuffer && showDownloadButton && (
-        <button
-          onClick={downloadKey}
-          className="bg-green-600 text-white hover:bg-green-700 px-12 py-1 rounded mb-2 w-64 text-center"
-        >
+        <Button onClick={downloadKey} variant="secondary" className="w-64">
+          <Download className="mr-2 h-4 w-4" />
           Download Key
-        </button>
+        </Button>
       )}
-      <button
-        onClick={triggerFileInput}
-        className="bg-blue-600 text-white hover:bg-blue-700 px-12 py-1 rounded mb-2 w-64 text-center"
-      >
+      <Button onClick={triggerFileInput} variant="outline" className="w-64">
+        <Upload className="mr-2 h-4 w-4" />
         Upload Key
-      </button>
+      </Button>
       <input
         type="file"
         ref={fileInputRef}

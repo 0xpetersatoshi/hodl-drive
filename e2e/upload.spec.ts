@@ -147,10 +147,10 @@ test.describe("Upload Page", () => {
 
     // Wait for success state
     await expect(
-      page.getByRole("button", { name: "View All Uploads" })
+      page.getByRole("link", { name: "View All Uploads" })
     ).toBeVisible({ timeout: 10000 });
 
-    await page.getByRole("button", { name: "View All Uploads" }).click();
+    await page.getByRole("link", { name: "View All Uploads" }).click();
     await expect(page).toHaveURL("/uploads");
   });
 });

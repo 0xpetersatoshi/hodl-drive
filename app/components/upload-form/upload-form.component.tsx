@@ -6,8 +6,11 @@ import Transaction from "../transaction/transaction.component";
 import { encryptData, encryptDataInChunks } from "@/app/utils";
 import { config } from "@/app/config";
 import { ArweaveData } from "@/app/types";
-import Loading from "@/app/loading";
-import Error from "../error/error.component";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle } from "lucide-react";
 
 const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -125,61 +128,51 @@ const UploadForm = () => {
   return (
     <div>
       {isLoading ? (
-        <Loading />
+        <Card>
+          <CardContent className="p-6 space-y-3">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-8 w-24" />
+          </CardContent>
+        </Card>
       ) : error ? (
-        <div className="flex flex-col items-center justify-between mt-4 w-full">
-          <div className="w-full flex justify-center">
-            <div className="w-80">
-              {" "}
-              <Error message={error} />
-            </div>
-          </div>
-          <button
-            onClick={resetForm}
-            className="bg-blue-600 text-white hover:bg-blue-700 w-40 py-1 rounded"
-          >
-            Try Upload Again
-          </button>
+        <div className="flex flex-col items-center gap-4">
+          <Alert variant="destructive" className="max-w-md">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          <Button onClick={resetForm}>Try Upload Again</Button>
         </div>
       ) : transactionId ? (
         <div>
           <Transaction id={transactionId} />
-          <div className="flex justify-center items-center space-x-4 mt-4">
-            <button
-              onClick={resetForm}
-              className="bg-blue-600 text-white hover:bg-blue-700 w-40 py-1 rounded"
-            >
+          <div className="flex justify-center items-center gap-4 mt-4">
+            <Button onClick={resetForm} variant="outline">
               Upload Another
-            </button>
-            <Link href="/uploads">
-              <button className="bg-blue-600 text-white hover:bg-blue-700 w-40 py-1 rounded">
-                View All Uploads
-              </button>
-            </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/uploads">View All Uploads</Link>
+            </Button>
           </div>
         </div>
       ) : (
-        <div className="dark:bg-gray-900 flex flex-col items-center justify-between p-4 rounded text-white">
-          <form
-            action=""
-            onSubmit={handleUpload}
-            className="flex flex-col items-center justify-between"
-          >
-            <input
-              type="file"
-              className="bg-gray-700 px-2 py-1 rounded text-white m-2"
-              onChange={handleFileChange}
-              required
-            />
-
-            <button
-              type="submit"
-              className="bg-blue-600 text-white hover:bg-blue-700 mt-2 px-12 py-1 rounded"
+        <Card>
+          <CardContent className="p-6">
+            <form
+              onSubmit={handleUpload}
+              className="flex flex-col items-center gap-4"
             >
-              Upload data
-            </button>
-          </form>
-        </div>
+              <input
+                type="file"
+                className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                onChange={handleFileChange}
+                required
+              />
+              <Button type="submit">Upload data</Button>
+            </form>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

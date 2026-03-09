@@ -14,7 +14,7 @@ test.describe("Uploads Page (MyDrive)", () => {
   }) => {
     await page.goto("/uploads");
 
-    const errorBanner = page.locator(".bg-red-600");
+    const errorBanner = page.locator("main").getByRole("alert");
     await expect(errorBanner).toBeVisible();
     await expect(errorBanner).toContainText("Wallet is not connected");
   });

@@ -2,79 +2,90 @@
 
 import Link from "next/link";
 import { FC } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@/components/ui/card";
+import { AlertTriangle, KeyRound, Wallet, Upload, HardDrive } from "lucide-react";
+
+const steps = [
+  {
+    title: "Step 1: Manage Keys",
+    icon: KeyRound,
+    description: "Create or upload your existing encryption key.",
+    linkText: "Manage Keys",
+    href: "/keys",
+  },
+  {
+    title: "Step 2: Connect Wallet",
+    icon: Wallet,
+    description:
+      "Connect your Ethereum wallet to associate your file uploads with your wallet address.",
+    linkText: null,
+    href: null,
+  },
+  {
+    title: "Step 3: Upload File",
+    icon: Upload,
+    description:
+      "Upload a file. Your files will be client-side encrypted and securely stored on Arweave.",
+    linkText: "Upload",
+    href: "/upload",
+  },
+  {
+    title: "Step 4: Access MyDrive",
+    icon: HardDrive,
+    description: "Access and manage your uploaded files.",
+    linkText: "MyDrive",
+    href: "/uploads",
+  },
+];
 
 const Home: FC = () => {
   return (
-    <div className="dark:bg-gray-900 dark:text-white min-h-screen py-12">
-      <section className="bg-red-600 text-white p-4 rounded-lg mb-2 mx-auto max-w-2xl">
-        <h2 className="font-bold text-2xl mb-2">Warning:</h2>
-        <p className="text-lg">
+    <div className="max-w-4xl mx-auto py-8 space-y-8">
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Warning</AlertTitle>
+        <AlertDescription>
           This app is experimental and still in development. App is currently
           using Bundlr&#39;s devnet network so uploads are not permanent!
-        </p>
-      </section>
-      {/* Hero Section */}
-      <section className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to HODL Drive</h1>
-        <p className="text-xl mb-8">
+        </AlertDescription>
+      </Alert>
+
+      <section className="text-center space-y-2">
+        <h1 className="text-4xl font-bold">Welcome to HODL Drive</h1>
+        <p className="text-xl text-muted-foreground">
           Your decentralized storage solution, powered by Arweave.
         </p>
       </section>
 
-      {/* How to Use Section */}
-      <section className="text-center mt-12">
-        <h2 className="text-3xl font-semibold mb-8">How to Use HODL Drive</h2>
-
-        {/* Step 1 */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-medium mb-4">Step 1: Manage Keys</h3>
-          <p className="mb-4">
-            Create or upload your existing encryption key by clicking on{" "}
-            <Link href="/keys">
-              <button className="text-blue-500 dark:text-blue-300">
-                Manage Keys
-              </button>
-            </Link>
-            .
-          </p>
-        </div>
-
-        {/* Step 2 */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-medium mb-4">Step 2: Connect Wallet</h3>
-          <p className="mb-4">
-            Connect your Ethereum wallet to associate your file uploads with
-            your wallet address.
-          </p>
-        </div>
-
-        {/* Step 3 */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-medium mb-4">Step 3: Upload File</h3>
-          <p className="mb-4">
-            Click on{" "}
-            <Link href="/upload">
-              <button className="text-blue-500 dark:text-blue-300">
-                Upload
-              </button>
-            </Link>{" "}
-            to upload a file. Your files will be client-side encrypted and
-            securely stored on Arweave.
-          </p>
-        </div>
-
-        {/* Step 4 */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-medium mb-4">Step 4: Access MyDrive</h3>
-          <p className="mb-4">
-            Go to{" "}
-            <Link href="/uploads">
-              <button className="text-blue-500 dark:text-blue-300">
-                MyDrive
-              </button>
-            </Link>{" "}
-            to access and manage your uploaded files.
-          </p>
+      <section className="text-center">
+        <h2 className="text-3xl font-semibold mb-6">How to Use HODL Drive</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {steps.map((step) => (
+            <Card key={step.title}>
+              <CardHeader>
+                <h3 className="flex items-center gap-2 text-lg font-semibold leading-none">
+                  <step.icon className="h-5 w-5" />
+                  {step.title}
+                </h3>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-3">
+                  {step.description}
+                </p>
+                {step.href && step.linkText && (
+                  <Button variant="link" asChild>
+                    <Link href={step.href}>{step.linkText}</Link>
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
     </div>
