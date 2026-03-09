@@ -89,6 +89,16 @@ const UploadForm = () => {
         });
 
         console.log(`Response status code: ${response.status}`);
+        if (!response.ok) {
+          const text = await response.text();
+          try {
+            const err = JSON.parse(text);
+            setError(`API Error: ${err.error}`);
+          } catch {
+            setError(`API Error: ${response.statusText}`);
+          }
+          return;
+        }
         const jsonResponse = await response.json();
 
         if (response.status !== 200) {

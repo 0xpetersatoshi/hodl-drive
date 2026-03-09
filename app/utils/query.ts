@@ -20,5 +20,12 @@ export const fetchGraphQL = async (
     cache: "no-store",
   });
 
+  if (!result.ok) {
+    return {
+      errors: [{ message: `GraphQL request failed: ${result.status} ${result.statusText}` }],
+      data: null,
+    };
+  }
+
   return await result.json();
 };

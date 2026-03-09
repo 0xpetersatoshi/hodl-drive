@@ -25,26 +25,40 @@ export async function waitForWalletConnected(page: Page) {
  * Wait for the encryption key to be loaded from IndexedDB into the
  * EncryptionKeyProvider context. Use after navigating to a page where
  * a previously-generated key needs to be available.
+ *
+ * Searches all IndexedDB databases for an "encryptionKey" entry so the
+ * test works regardless of the DB/store names configured on the server.
  */
 export async function waitForEncryptionKey(page: Page) {
   await expect(async () => {
     const hasKey = await page.evaluate(async () => {
-      return new Promise<boolean>((resolve) => {
-        const req = indexedDB.open("hodl-drive-test");
-        req.onsuccess = () => {
-          const db = req.result;
-          if (!db.objectStoreNames.contains("encryption-keys-test")) {
+      const databases = await indexedDB.databases();
+      for (const dbInfo of databases) {
+        if (!dbInfo.name) continue;
+        const found = await new Promise<boolean>((resolve) => {
+          const req = indexedDB.open(dbInfo.name!);
+          req.onsuccess = () => {
+            const db = req.result;
+            const storeNames = Array.from(db.objectStoreNames);
+            if (storeNames.length === 0) { db.close(); resolve(false); return; }
+            for (const sn of storeNames) {
+              try {
+                const tx = db.transaction(sn, "readonly");
+                const store = tx.objectStore(sn);
+                const getReq = store.get("encryptionKey");
+                getReq.onsuccess = () => { db.close(); resolve(!!getReq.result); };
+                getReq.onerror = () => { db.close(); resolve(false); };
+                return;
+              } catch { continue; }
+            }
+            db.close();
             resolve(false);
-            return;
-          }
-          const tx = db.transaction("encryption-keys-test", "readonly");
-          const store = tx.objectStore("encryption-keys-test");
-          const getReq = store.get("encryptionKey");
-          getReq.onsuccess = () => resolve(!!getReq.result);
-          getReq.onerror = () => resolve(false);
-        };
-        req.onerror = () => resolve(false);
-      });
+          };
+          req.onerror = () => resolve(false);
+        });
+        if (found) return true;
+      }
+      return false;
     });
     expect(hasKey).toBe(true);
   }).toPass({ timeout: 5000 });

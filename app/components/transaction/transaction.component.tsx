@@ -43,6 +43,7 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
         const response = await fetch(`/api/v0/upload/tx/${id}`, {
           cache: "no-store",
         });
+        if (!response.ok) return;
         const jsonResponse = await response.json();
 
         if (response.status === 200) {
@@ -50,6 +51,7 @@ const Transaction: React.FC<TransactionProps> = ({ id }) => {
           setTransaction(node);
 
           const arweaveResponse = await fetch(`https://arweave.net/${node.id}`);
+          if (!arweaveResponse.ok) return;
           const arweaveData: ArweaveData = await arweaveResponse.json();
           const { data, iv } = arweaveData.metadata;
 

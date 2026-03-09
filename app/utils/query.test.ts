@@ -18,6 +18,7 @@ describe("fetchGraphQL", () => {
 
   beforeEach(() => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve(mockResponse),
     } as Response);
   });
@@ -90,14 +91,17 @@ describe("fetchGraphQL", () => {
     );
   });
 
-  it("propagates JSON parse errors", async () => {
+  it("returns error object when response is not ok", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue({
-      json: () => Promise.reject(new SyntaxError("Unexpected token <")),
+      ok: false,
+      status: 500,
+      statusText: "Internal Server Error",
     } as Response);
 
-    await expect(fetchGraphQL("query { test }")).rejects.toThrow(
-      "Unexpected token <"
-    );
+    const result = await fetchGraphQL("query { test }");
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0].message).toContain("500");
+    expect(result.data).toBeNull();
   });
 
   it("returns GraphQL error responses without throwing", async () => {
@@ -106,6 +110,7 @@ describe("fetchGraphQL", () => {
       data: null,
     };
     vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve(errorResponse),
     } as Response);
 

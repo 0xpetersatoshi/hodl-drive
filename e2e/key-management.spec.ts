@@ -68,28 +68,35 @@ test.describe("Key Management", () => {
     await page.goto("/upload");
     await page.goto("/keys");
 
-    // Verify key is still in IndexedDB via evaluate
+    // Verify key is still in IndexedDB via evaluate (search all databases)
     const hasKey = await page.evaluate(async () => {
-      return new Promise<boolean>((resolve) => {
-        const dbName =
-          (window as any).__NEXT_DATA__?.props?.pageProps?.dbName ||
-          "hodl-drive-test";
-        const req = indexedDB.open(dbName);
-        req.onsuccess = () => {
-          const db = req.result;
-          const storeNames = Array.from(db.objectStoreNames);
-          if (storeNames.length === 0) {
+      const databases = await indexedDB.databases();
+      for (const dbInfo of databases) {
+        if (!dbInfo.name) continue;
+        const found = await new Promise<boolean>((resolve) => {
+          const req = indexedDB.open(dbInfo.name!);
+          req.onsuccess = () => {
+            const db = req.result;
+            const storeNames = Array.from(db.objectStoreNames);
+            if (storeNames.length === 0) { db.close(); resolve(false); return; }
+            for (const sn of storeNames) {
+              try {
+                const tx = db.transaction(sn, "readonly");
+                const store = tx.objectStore(sn);
+                const getReq = store.get("encryptionKey");
+                getReq.onsuccess = () => { db.close(); resolve(!!getReq.result); };
+                getReq.onerror = () => { db.close(); resolve(false); };
+                return;
+              } catch { continue; }
+            }
+            db.close();
             resolve(false);
-            return;
-          }
-          const tx = db.transaction(storeNames[0], "readonly");
-          const store = tx.objectStore(storeNames[0]);
-          const getReq = store.get("encryptionKey");
-          getReq.onsuccess = () => resolve(!!getReq.result);
-          getReq.onerror = () => resolve(false);
-        };
-        req.onerror = () => resolve(false);
-      });
+          };
+          req.onerror = () => resolve(false);
+        });
+        if (found) return true;
+      }
+      return false;
     });
 
     expect(hasKey).toBe(true);

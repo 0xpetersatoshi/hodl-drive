@@ -143,26 +143,36 @@ test.describe("Cross-Flow", () => {
     const keyFileInput = newPage.locator('input[type="file"]');
     await keyFileInput.setInputFiles(downloadPath!);
 
-    // Verify key was loaded by checking the context has a key buffer
+    // Verify key was loaded by checking IndexedDB (search all databases)
     await expect(async () => {
       const hasKey = await newPage.evaluate(async () => {
-        return new Promise<boolean>((resolve) => {
-          const dbName = "hodl-drive-test";
-          const req = indexedDB.open(dbName);
-          req.onsuccess = () => {
-            const db = req.result;
-            if (!db.objectStoreNames.contains("encryption-keys-test")) {
+        const databases = await indexedDB.databases();
+        for (const dbInfo of databases) {
+          if (!dbInfo.name) continue;
+          const found = await new Promise<boolean>((resolve) => {
+            const req = indexedDB.open(dbInfo.name!);
+            req.onsuccess = () => {
+              const db = req.result;
+              const storeNames = Array.from(db.objectStoreNames);
+              if (storeNames.length === 0) { db.close(); resolve(false); return; }
+              for (const sn of storeNames) {
+                try {
+                  const tx = db.transaction(sn, "readonly");
+                  const store = tx.objectStore(sn);
+                  const getReq = store.get("encryptionKey");
+                  getReq.onsuccess = () => { db.close(); resolve(!!getReq.result); };
+                  getReq.onerror = () => { db.close(); resolve(false); };
+                  return;
+                } catch { continue; }
+              }
+              db.close();
               resolve(false);
-              return;
-            }
-            const tx = db.transaction("encryption-keys-test", "readonly");
-            const store = tx.objectStore("encryption-keys-test");
-            const getReq = store.get("encryptionKey");
-            getReq.onsuccess = () => resolve(!!getReq.result);
-            getReq.onerror = () => resolve(false);
-          };
-          req.onerror = () => resolve(false);
-        });
+            };
+            req.onerror = () => resolve(false);
+          });
+          if (found) return true;
+        }
+        return false;
       });
       expect(hasKey).toBe(true);
     }).toPass({ timeout: 5000 });

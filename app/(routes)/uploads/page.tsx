@@ -22,6 +22,7 @@ const Page = () => {
           const response = await fetch(`/api/v0/uploads/address/${address}`, {
             cache: "no-store",
           });
+          if (!response.ok) return;
           const bundlrData: BundlrApiResponse = await response.json();
 
           if (response.status === 200) {
