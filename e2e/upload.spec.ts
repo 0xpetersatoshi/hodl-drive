@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { injectConnectedWallet, waitForWalletConnected } from "./fixtures/wallet";
+import { injectConnectedWallet, waitForWalletConnected, waitForEncryptionKey } from "./fixtures/wallet";
 import {
   mockUploadAPI,
   mockTxDetailAPI,
@@ -72,9 +72,10 @@ test.describe("Upload Page", () => {
       page.getByRole("button", { name: "Download Key" })
     ).toBeVisible();
 
-    // Navigate to upload
+    // Navigate to upload and wait for both wallet and key to be ready
     await page.goto("/upload");
     await waitForWalletConnected(page);
+    await waitForEncryptionKey(page);
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
@@ -133,6 +134,7 @@ test.describe("Upload Page", () => {
 
     await page.goto("/upload");
     await waitForWalletConnected(page);
+    await waitForEncryptionKey(page);
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({

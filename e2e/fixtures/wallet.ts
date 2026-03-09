@@ -20,3 +20,32 @@ export async function waitForWalletConnected(page: Page) {
     timeout: 10000,
   });
 }
+
+/**
+ * Wait for the encryption key to be loaded from IndexedDB into the
+ * EncryptionKeyProvider context. Use after navigating to a page where
+ * a previously-generated key needs to be available.
+ */
+export async function waitForEncryptionKey(page: Page) {
+  await expect(async () => {
+    const hasKey = await page.evaluate(async () => {
+      return new Promise<boolean>((resolve) => {
+        const req = indexedDB.open("hodl-drive-test");
+        req.onsuccess = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains("encryption-keys-test")) {
+            resolve(false);
+            return;
+          }
+          const tx = db.transaction("encryption-keys-test", "readonly");
+          const store = tx.objectStore("encryption-keys-test");
+          const getReq = store.get("encryptionKey");
+          getReq.onsuccess = () => resolve(!!getReq.result);
+          getReq.onerror = () => resolve(false);
+        };
+        req.onerror = () => resolve(false);
+      });
+    });
+    expect(hasKey).toBe(true);
+  }).toPass({ timeout: 5000 });
+}

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { injectConnectedWallet, waitForWalletConnected } from "./fixtures/wallet";
+import { injectConnectedWallet, waitForWalletConnected, waitForEncryptionKey } from "./fixtures/wallet";
 import {
   mockUploadAPI,
   mockTxDetailAPI,
@@ -27,6 +27,7 @@ test.describe("Cross-Flow", () => {
     // Step 2: Upload a file
     await page.goto("/upload");
     await waitForWalletConnected(page);
+    await waitForEncryptionKey(page);
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
@@ -63,6 +64,7 @@ test.describe("Cross-Flow", () => {
     // Navigate to upload and try uploading — should NOT get "Key buffer is null" error
     await page.goto("/upload");
     await waitForWalletConnected(page);
+    await waitForEncryptionKey(page);
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
